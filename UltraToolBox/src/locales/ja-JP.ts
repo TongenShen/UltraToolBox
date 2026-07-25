@@ -55,6 +55,15 @@ export default {
  'systemInfo.app.version': 'アプリバージョン',
  'systemInfo.app.framework': 'フレームワーク',
  'systemInfo.processCount': 'プロセス数',
+ 'systemInfo.power.title': '電力情報',
+ 'systemInfo.power.source': '電源',
+ 'systemInfo.power.batteryPercent': 'バッテリー残量',
+ 'systemInfo.power.batteryState': 'バッテリー状態',
+ 'systemInfo.power.timeRemaining': '残り時間',
+ 'systemInfo.power.thermal': 'サーマルプレッシャー',
+ 'systemInfo.power.cpuPower': 'CPU 電力',
+ 'systemInfo.power.gpuPower': 'GPU 電力',
+ 'systemInfo.power.combinedPower': '合計電力',
 
  // サイドバー
  'sidebar.search.placeholder': 'ツールを検索...',

@@ -4,7 +4,8 @@ import { invoke } from '@tauri-apps/api/core'
 import { APP_VERSION } from '@/config/app'
 import {
   Cpu, HardDrive, Monitor, Server, Clock,
-  Disc, Loader, Info, BarChart3, RefreshCw
+  Disc, Loader, Info, BarChart3, RefreshCw,
+  Battery, Zap, Thermometer
 } from '@lucide/vue'
 
 interface DiskInfo {
@@ -38,10 +39,24 @@ interface SystemInfo {
   load_average_15: number
 }
 
+interface PowerInfo {
+  available: boolean
+  battery_percent: number | null
+  battery_state: string | null
+  battery_time_remaining: string | null
+  power_source: string | null
+  thermal_level: string | null
+  cpu_power_mw: number | null
+  gpu_power_mw: number | null
+  combined_power_mw: number | null
+  powermetrics_available: boolean
+}
+
 const loading = ref(true)
 const refreshing = ref(false)
 const error = ref('')
 const info = ref<SystemInfo | null>(null)
+const powerInfo = ref<PowerInfo | null>(null)
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B'
@@ -91,8 +106,16 @@ function diskUsed(disk: DiskInfo): string {
 
 async function fetchSystemInfo() {
   try {
-    const result = await invoke<SystemInfo>('get_system_info')
-    info.value = result
+    const [sysResult, powerResult] = await Promise.all([
+      invoke<SystemInfo>('get_system_info'),
+      invoke<PowerInfo>('get_power_info'),
+    ])
+    info.value = sysResult
+    if (powerResult.available) {
+      powerInfo.value = powerResult
+    } else {
+      powerInfo.value = null
+    }
     error.value = ''
   } catch (e: any) {
     error.value = e?.toString() || '获取系统信息失败'
@@ -216,6 +239,50 @@ onMounted(async () => {
             <div class="info-item" v-if="info.swap_total > 0">
               <span class="info-label">{{ $t('systemInfo.memory.swap') }}</span>
               <span class="info-value">{{ formatBytes(info.swap_used) }} / {{ formatBytes(info.swap_total) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 功率信息 (macOS 专用) -->
+      <div class="info-card full-width" v-if="powerInfo">
+        <div class="card-header">
+          <Zap :size="20" />
+          <span>{{ $t('systemInfo.power.title') }}</span>
+        </div>
+        <div class="card-body">
+          <div class="power-grid">
+            <div class="power-item" v-if="powerInfo.power_source">
+              <span class="power-label"><Battery :size="14" /> {{ $t('systemInfo.power.source') }}</span>
+              <span class="power-value">{{ powerInfo.power_source }}</span>
+            </div>
+            <div class="power-item" v-if="powerInfo.battery_percent !== null">
+              <span class="power-label">{{ $t('systemInfo.power.batteryPercent') }}</span>
+              <span class="power-value">{{ powerInfo.battery_percent }}%</span>
+            </div>
+            <div class="power-item" v-if="powerInfo.battery_state">
+              <span class="power-label">{{ $t('systemInfo.power.batteryState') }}</span>
+              <span class="power-value">{{ powerInfo.battery_state }}</span>
+            </div>
+            <div class="power-item" v-if="powerInfo.battery_time_remaining">
+              <span class="power-label">{{ $t('systemInfo.power.timeRemaining') }}</span>
+              <span class="power-value">{{ powerInfo.battery_time_remaining }}</span>
+            </div>
+            <div class="power-item" v-if="powerInfo.thermal_level">
+              <span class="power-label"><Thermometer :size="14" /> {{ $t('systemInfo.power.thermal') }}</span>
+              <span class="power-value" :class="{ 'thermal-hot': powerInfo.thermal_level !== 'Nominal' && powerInfo.thermal_level !== 'Fair' }">{{ powerInfo.thermal_level }}</span>
+            </div>
+            <div class="power-item" v-if="powerInfo.cpu_power_mw !== null">
+              <span class="power-label"><Cpu :size="14" /> {{ $t('systemInfo.power.cpuPower') }}</span>
+              <span class="power-value">{{ (powerInfo.cpu_power_mw / 1000).toFixed(2) }} W</span>
+            </div>
+            <div class="power-item" v-if="powerInfo.gpu_power_mw !== null">
+              <span class="power-label"><Monitor :size="14" /> {{ $t('systemInfo.power.gpuPower') }}</span>
+              <span class="power-value">{{ (powerInfo.gpu_power_mw / 1000).toFixed(2) }} W</span>
+            </div>
+            <div class="power-item" v-if="powerInfo.combined_power_mw !== null">
+              <span class="power-label"><Zap :size="14" /> {{ $t('systemInfo.power.combinedPower') }}</span>
+              <span class="power-value">{{ (powerInfo.combined_power_mw / 1000).toFixed(2) }} W</span>
             </div>
           </div>
         </div>
@@ -542,5 +609,39 @@ onMounted(async () => {
   gap: 16px;
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+/* 功率信息 */
+.power-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.power-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+}
+
+.power-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.power-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.power-value.thermal-hot {
+  color: #ef4444;
 }
 </style>

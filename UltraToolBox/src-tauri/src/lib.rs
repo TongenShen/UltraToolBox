@@ -1,4 +1,5 @@
 use serde::Serialize;
+use std::process::Command;
 use sysinfo::{Disks, System};
 
 #[derive(Serialize)]
@@ -32,6 +33,139 @@ pub struct DiskInfo {
     pub total_space: u64,
     pub available_space: u64,
     pub file_system: String,
+}
+
+#[derive(Serialize, Default)]
+pub struct PowerInfo {
+    pub available: bool,
+    pub battery_percent: Option<f32>,
+    pub battery_state: Option<String>,
+    pub battery_time_remaining: Option<String>,
+    pub power_source: Option<String>,
+    pub thermal_level: Option<String>,
+    pub cpu_power_mw: Option<u32>,
+    pub gpu_power_mw: Option<u32>,
+    pub combined_power_mw: Option<u32>,
+    pub powermetrics_available: bool,
+}
+
+fn run_cmd(cmd: &str, args: &[&str]) -> Option<String> {
+    Command::new(cmd)
+        .args(args)
+        .output()
+        .ok()
+        .filter(|o| o.status.success())
+        .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
+fn parse_power_info() -> PowerInfo {
+    let os = std::env::consts::OS;
+    if os != "macos" {
+        return PowerInfo::default();
+    }
+
+    let mut info = PowerInfo {
+        available: true,
+        ..Default::default()
+    };
+
+    // 1. pmset -g batt — 电池信息
+    if let Some(batt) = run_cmd("pmset", &["-g", "batt"]) {
+        // 解析电源来源
+        if batt.contains("AC Power") || batt.contains("Battery Power") {
+            if batt.contains("AC Power") {
+                info.power_source = Some("AC 电源".to_string());
+            } else {
+                info.power_source = Some("电池".to_string());
+            }
+        }
+        // 解析电池百分比和状态
+        for line in batt.lines() {
+            if line.contains("InternalBattery") || line.contains("-Internal") {
+                // 例如: -InternalBattery-0 (id=1234567) 75%; discharging; 4:32 remaining
+                let trimmed = line.trim();
+                if let Some(semicolon) = trimmed.find(';') {
+                    let before = &trimmed[..semicolon];
+                    let after = &trimmed[semicolon + 1..];
+                    // 提取百分比
+                    if let Some(pct_end) = before.find('%') {
+                        let pct_str = before[..pct_end].trim();
+                        // 从末尾往前找数字
+                        if let Some(last_space) = pct_str.rfind(' ') {
+                            if let Ok(pct) = pct_str[last_space + 1..].parse::<f32>() {
+                                info.battery_percent = Some(pct);
+                            }
+                        }
+                    }
+                    // 提取状态 (charging/discharging/finishing charge/AC attached)
+                    let state = after.trim().split(';').next().unwrap_or("").trim().to_string();
+                    if !state.is_empty() {
+                        info.battery_state = Some(state);
+                    }
+                    // 提取剩余时间
+                    if after.contains("remaining") {
+                        for part in after.split(';') {
+                            let part = part.trim();
+                            if part.contains("remaining") && !part.contains("no") {
+                                info.battery_time_remaining = Some(part.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 2. pmset -g therm — 热压力
+    if let Some(therm) = run_cmd("pmset", &["-g", "therm"]) {
+        for line in therm.lines() {
+            if line.contains("Thermal pressure") || line.contains("thermal pressure") {
+                if let Some(colon) = line.find(':') {
+                    info.thermal_level = Some(line[colon + 1..].trim().to_string());
+                }
+            }
+        }
+    }
+
+    // 3. powermetrics — 功率信息 (可能需要 root, 捕获失败)
+    if let Some(pm) = run_cmd(
+        "powermetrics",
+        &[
+            "-s",
+            "power",
+            "-n",
+            "1",
+            "-i",
+            "100",
+            "--show-usage-summary",
+        ],
+    ) {
+        info.powermetrics_available = true;
+        for line in pm.lines() {
+            let trimmed = line.trim();
+            if let Some(val) = trimmed.strip_prefix("CPU Power:") {
+                info.cpu_power_mw = parse_power_value(val.trim());
+            } else if let Some(val) = trimmed.strip_prefix("GPU Power:") {
+                info.gpu_power_mw = parse_power_value(val.trim());
+            } else if let Some(val) = trimmed.strip_prefix("Combined Power:") {
+                info.combined_power_mw = parse_power_value(val.trim());
+            }
+        }
+    }
+
+    info
+}
+
+fn parse_power_value(s: &str) -> Option<u32> {
+    // 格式: "1234 mW" 或 "1234"
+    let s = s.trim();
+    if let Some(space) = s.find(' ') {
+        s[..space].parse::<u32>().ok()
+    } else {
+        // 尝试直接解析
+        s.parse::<u32>().ok()
+    }
 }
 
 #[tauri::command]
@@ -108,6 +242,11 @@ fn get_system_info() -> SystemInfo {
     }
 }
 
+#[tauri::command]
+fn get_power_info() -> PowerInfo {
+    parse_power_info()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -116,7 +255,7 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_system_info])
+        .invoke_handler(tauri::generate_handler![get_system_info, get_power_info])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -55,6 +55,15 @@ export default {
  'systemInfo.app.version': '앱 버전',
  'systemInfo.app.framework': '프레임워크',
  'systemInfo.processCount': '프로세스 수',
+ 'systemInfo.power.title': '전력 정보',
+ 'systemInfo.power.source': '전원 공급원',
+ 'systemInfo.power.batteryPercent': '배터리 잔량',
+ 'systemInfo.power.batteryState': '배터리 상태',
+ 'systemInfo.power.timeRemaining': '남은 시간',
+ 'systemInfo.power.thermal': '열 압력',
+ 'systemInfo.power.cpuPower': 'CPU 전력',
+ 'systemInfo.power.gpuPower': 'GPU 전력',
+ 'systemInfo.power.combinedPower': '총 전력',
 
  // 사이드바
  'sidebar.search.placeholder': '도구 검색...',

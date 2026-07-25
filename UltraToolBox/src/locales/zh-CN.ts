@@ -57,6 +57,15 @@ export default {
  'systemInfo.app.version': '应用版本',
  'systemInfo.app.framework': '框架',
  'systemInfo.processCount': '进程数',
+ 'systemInfo.power.title': '功率信息',
+ 'systemInfo.power.source': '电源来源',
+ 'systemInfo.power.batteryPercent': '电池电量',
+ 'systemInfo.power.batteryState': '电池状态',
+ 'systemInfo.power.timeRemaining': '剩余时间',
+ 'systemInfo.power.thermal': '热压力',
+ 'systemInfo.power.cpuPower': 'CPU 功率',
+ 'systemInfo.power.gpuPower': 'GPU 功率',
+ 'systemInfo.power.combinedPower': '总功率',
 
  // 侧边栏
  'sidebar.search.placeholder': '搜索工具...',

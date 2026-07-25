@@ -57,6 +57,15 @@ export default {
  'systemInfo.app.version': 'App Version',
  'systemInfo.app.framework': 'Framework',
  'systemInfo.processCount': 'Processes',
+ 'systemInfo.power.title': 'Power Information',
+ 'systemInfo.power.source': 'Power Source',
+ 'systemInfo.power.batteryPercent': 'Battery Level',
+ 'systemInfo.power.batteryState': 'Battery State',
+ 'systemInfo.power.timeRemaining': 'Time Remaining',
+ 'systemInfo.power.thermal': 'Thermal Pressure',
+ 'systemInfo.power.cpuPower': 'CPU Power',
+ 'systemInfo.power.gpuPower': 'GPU Power',
+ 'systemInfo.power.combinedPower': 'Combined Power',
 
  // Sidebar
  'sidebar.search.placeholder': 'Search tools...',
