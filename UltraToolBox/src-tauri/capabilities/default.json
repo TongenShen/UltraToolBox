@@ -9,8 +9,100 @@
     "core:default",
     "opener:default",
     "shell:default",
-    "shell:allow-execute",
-    "shell:allow-spawn",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "sh",
+          "cmd": "sh",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "ping",
+          "cmd": "ping",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "adb",
+          "cmd": "adb",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "iperf3",
+          "cmd": "iperf3",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "aria2c",
+          "cmd": "aria2c",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "curl",
+          "cmd": "curl",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "pkill",
+          "cmd": "pkill",
+          "args": true,
+          "sidecar": false
+        }
+      ]
+    },
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "sh",
+          "cmd": "sh",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "adb",
+          "cmd": "adb",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "ping",
+          "cmd": "ping",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "iperf3",
+          "cmd": "iperf3",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "aria2c",
+          "cmd": "aria2c",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "curl",
+          "cmd": "curl",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "pkill",
+          "cmd": "pkill",
+          "args": true,
+          "sidecar": false
+        }
+      ]
+    },
     "shell:allow-stdin-write",
     "shell:allow-kill",
     "fs:default",

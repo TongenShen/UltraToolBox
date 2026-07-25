@@ -28,16 +28,7 @@
   },
   "plugins": {
     "shell": {
-      "scope": [
-        { "name": "sh", "cmd": "sh", "args": true },
-        { "name": "open", "cmd": "open", "args": true },
-        { "name": "ping", "cmd": "ping", "args": true },
-        { "name": "adb", "cmd": "adb", "args": true },
-        { "name": "iperf3", "cmd": "iperf3", "args": true },
-        { "name": "aria2c", "cmd": "aria2c", "args": true },
-        { "name": "curl", "cmd": "curl", "args": true },
-        { "name": "pkill", "cmd": "pkill", "args": true }
-      ]
+      "open": true
     }
   },
   "bundle": {
