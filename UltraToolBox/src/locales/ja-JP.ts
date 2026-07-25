@@ -43,6 +43,7 @@ export default {
  'systemInfo.memory.available': '利用可能',
  'systemInfo.memory.usage': '使用率',
  'systemInfo.memory.swap': 'スワップ',
+ 'systemInfo.memory.memoryPressure': 'メモリプレッシャー',
  'systemInfo.system.title': 'システム情報',
  'systemInfo.system.hostname': 'ホスト名',
  'systemInfo.system.os': 'オペレーティングシステム',

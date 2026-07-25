@@ -42,6 +42,7 @@ interface SystemInfo {
   load_average_1: number
   load_average_5: number
   load_average_15: number
+  memory_pressure: string | null
 }
 
 interface PowerInfo {
@@ -134,6 +135,13 @@ function diskUsagePercent(disk: DiskInfo): number {
 
 function diskUsed(disk: DiskInfo): string {
   return formatBytes(disk.total_space - disk.available_space)
+}
+
+function memoryPressurePercent(): number {
+  if (!info.value?.memory_pressure) return 0
+  const free = parseFloat(info.value.memory_pressure)
+  if (isNaN(free)) return 0
+  return Math.round((100 - free) * 100) / 100
 }
 
 // ---- 数据获取 ----
@@ -322,6 +330,15 @@ onUnmounted(() => {
             <div class="info-item" v-if="info.swap_total > 0">
               <span class="info-label">{{ $t('systemInfo.memory.swap') }}</span>
               <span class="info-value">{{ formatBytes(info.swap_used) }} / {{ formatBytes(info.swap_total) }}</span>
+            </div>
+            <div class="info-item" v-if="info.memory_pressure">
+              <span class="info-label">{{ $t('systemInfo.memory.memoryPressure') }}</span>
+              <span class="info-value">
+                <div class="progress-bar">
+                  <div class="progress-fill" :style="{ width: memoryPressurePercent() + '%' }" :class="{ 'fill-warning': memoryPressurePercent() > 50, 'fill-danger': memoryPressurePercent() > 80 }"></div>
+                </div>
+                <span class="progress-text">{{ memoryPressurePercent() }}%</span>
+              </span>
             </div>
           </div>
         </div>

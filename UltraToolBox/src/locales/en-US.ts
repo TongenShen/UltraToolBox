@@ -45,6 +45,7 @@ export default {
  'systemInfo.memory.available': 'Available',
  'systemInfo.memory.usage': 'Usage',
  'systemInfo.memory.swap': 'Swap',
+ 'systemInfo.memory.memoryPressure': 'Memory Pressure',
  'systemInfo.system.title': 'System Information',
  'systemInfo.system.hostname': 'Hostname',
  'systemInfo.system.os': 'Operating System',

@@ -45,6 +45,7 @@ export default {
  'systemInfo.memory.available': '可用',
  'systemInfo.memory.usage': '使用率',
  'systemInfo.memory.swap': '交换空间',
+ 'systemInfo.memory.memoryPressure': '内存压力',
  'systemInfo.system.title': '系统信息',
  'systemInfo.system.hostname': '主机名',
  'systemInfo.system.os': '操作系统',

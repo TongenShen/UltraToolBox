@@ -27,6 +27,7 @@ pub struct SystemInfo {
     pub load_average_1: f64,
     pub load_average_5: f64,
     pub load_average_15: f64,
+    pub memory_pressure: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -357,6 +358,25 @@ fn get_system_info() -> SystemInfo {
     let load_average_5 = load_avg.five;
     let load_average_15 = load_avg.fifteen;
 
+    // 内存压力 (macOS 专用)
+    let memory_pressure = if cfg!(target_os = "macos") {
+        run_cmd("memory_pressure", &[]).and_then(|out| {
+            for line in out.lines() {
+                if line.contains("free percentage:") {
+                    // 提取百分比数字，如 "System-wide memory free percentage: 53%"
+                    let s = line.trim();
+                    if let Some(num_str) = s.split(':').nth(1) {
+                        let num = num_str.trim().trim_end_matches('%').trim().to_string();
+                        return Some(num);
+                    }
+                }
+            }
+            None
+        })
+    } else {
+        None
+    };
+
     SystemInfo {
         cpu_brand,
         cpu_cores_physical,
@@ -379,6 +399,7 @@ fn get_system_info() -> SystemInfo {
         load_average_1,
         load_average_5,
         load_average_15,
+        memory_pressure,
     }
 }
 
