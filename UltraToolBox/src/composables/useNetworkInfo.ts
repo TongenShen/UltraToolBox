@@ -47,9 +47,18 @@ export function useNetworkInfo() {
   }
 
   async function getActiveInterface(): Promise<string> {
+    // 先用默认路由获取接口
     const result = await executeCommand("route -n get default 2>/dev/null | grep interface | awk '{print $2}'")
-    if (result.code === 0 && result.stdout.trim()) {
-      return result.stdout.trim()
+    const iface = result.stdout.trim()
+    // 如果是虚拟接口(utun/feth等)，回退到物理接口
+    if (iface && (iface.startsWith('utun') || iface.startsWith('feth') || iface.startsWith('tap') || iface.startsWith('tun'))) {
+      const physResult = await executeCommand("ifconfig -l 2>/dev/null | tr ' ' '\\n' | grep '^en' | head -1")
+      if (physResult.code === 0 && physResult.stdout.trim()) {
+        return physResult.stdout.trim()
+      }
+    }
+    if (result.code === 0 && iface) {
+      return iface
     }
     return 'en0'
   }
@@ -82,13 +91,21 @@ export function useNetworkInfo() {
     const dhcpResult = await executeCommand(`ipconfig getoption ${iface} server_identifier 2>/dev/null`)
     if (dhcpResult.code === 0) info.value.dhcpServer = dhcpResult.stdout.trim()
 
-    // Gateway
-    const gatewayResult = await executeCommand(`netstat -rn 2>/dev/null | grep default | grep ${iface} | awk '{print $2}' | head -1`)
+    // Gateway - 使用 -f inet 获取真实 IP 而非 link#
+    const gatewayResult = await executeCommand(`netstat -rn -f inet 2>/dev/null | grep '^default' | awk '{print $2}' | head -1`)
     if (gatewayResult.code === 0) info.value.gateway = gatewayResult.stdout.trim()
 
-    // Speed
-    const speedResult = await executeCommand(`ifconfig ${iface} 2>/dev/null | grep media | awk '{print $2}'`)
-    if (speedResult.code === 0) info.value.speed = speedResult.stdout.trim()
+    // Speed - 先尝试 ifconfig media，再尝试 system_profiler
+    const speedResult = await executeCommand(`ifconfig ${iface} 2>/dev/null | grep 'media:' | head -1 | awk -F': ' '{print $2}' | awk '{print $1}'`)
+    if (speedResult.code === 0 && speedResult.stdout.trim()) {
+      info.value.speed = speedResult.stdout.trim()
+    } else {
+      // WiFi 速率
+      const wifiResult = await executeCommand("airport -I 2>/dev/null | grep 'maxRate' | awk '{print $2}'")
+      if (wifiResult.code === 0 && wifiResult.stdout.trim()) {
+        info.value.speed = wifiResult.stdout.trim() + ' Mb/s'
+      }
+    }
   }
 
   async function fetchLinuxInfo() {

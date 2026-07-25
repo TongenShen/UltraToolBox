@@ -194,7 +194,6 @@ onMounted(async () => {
       <!-- Header -->
       <div class="tool-header">
         <h2 class="tool-title">{{ $t('network.title') }}</h2>
-        <p class="tool-desc">{{ $t('network.subtitle') }}</p>
       </div>
 
       <!-- Network Info Card -->
@@ -535,11 +534,6 @@ onMounted(async () => {
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 4px;
-}
-
-.tool-desc {
-  color: var(--text-secondary);
-  font-size: 14px;
 }
 
 /* Network Info Card */
