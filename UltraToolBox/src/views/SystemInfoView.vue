@@ -183,13 +183,23 @@ function toggleMonitoring() {
       monitorTimer = null
     }
     monitoring.value = false
+    invoke('stop_power_monitoring')
   } else {
-    // 开始监控
-    monitoring.value = true
-    // 立即刷新一次
-    fetchPowerOnly()
-    // 每 2 秒轮询
-    monitorTimer = setInterval(fetchPowerOnly, 2000)
+    // 开始监控 — 启动后台 powermetrics 进程
+    const pwd = appStore.rootPassword
+    if (!pwd) {
+      // 没有密码时提示
+      return
+    }
+    invoke('start_power_monitoring', { rootPassword: pwd }).then(() => {
+      monitoring.value = true
+      // 立即刷新一次
+      fetchPowerOnly()
+      // 每 10 秒轮询（只从缓存读，不额外跑 powermetrics）
+      monitorTimer = setInterval(fetchPowerOnly, 10000)
+    }).catch((e) => {
+      console.error('启动功率监控失败:', e)
+    })
   }
 }
 
@@ -203,6 +213,7 @@ onUnmounted(() => {
     clearInterval(monitorTimer)
     monitorTimer = null
   }
+  invoke('stop_power_monitoring')
 })
 </script>
 
