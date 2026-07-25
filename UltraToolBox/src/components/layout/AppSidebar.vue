@@ -18,6 +18,9 @@ const toolsStore = useToolsStore()
 // 搜索
 const searchQuery = ref('')
 
+// 通用工具折叠状态（默认展开）
+const generalExpanded = ref(true)
+
 // 系统工具折叠状态
 const systemExpanded = ref(false)
 
@@ -119,10 +122,11 @@ function handleSystemClick(item: ToolItem) {
     <div class="nav-scroll">
       <!-- Section 1: 通用工具 -->
       <div class="nav-section" v-if="!collapsed">
-        <div class="section-header">
+        <div class="section-header collapsible" @click="generalExpanded = !generalExpanded">
+          <span class="collapse-arrow">{{ generalExpanded ? '▼' : '▶' }}</span>
           <span class="section-title">{{ $t('sidebar.general') }}</span>
         </div>
-        <div class="section-items">
+        <div class="section-items" v-if="generalExpanded || searchQuery.trim() !== ''">
           <button
             v-for="item in filteredGeneralTools"
             :key="item.path"
