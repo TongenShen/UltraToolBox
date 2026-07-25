@@ -4,7 +4,7 @@ import { invoke } from '@tauri-apps/api/core'
 import { APP_VERSION } from '@/config/app'
 import {
   Cpu, HardDrive, Monitor, Server, Clock,
-  Disc, Loader, Info, BarChart3
+  Disc, Loader, Info, BarChart3, RefreshCw
 } from '@lucide/vue'
 
 interface DiskInfo {
@@ -39,6 +39,7 @@ interface SystemInfo {
 }
 
 const loading = ref(true)
+const refreshing = ref(false)
 const error = ref('')
 const info = ref<SystemInfo | null>(null)
 
@@ -88,26 +89,42 @@ function diskUsed(disk: DiskInfo): string {
   return formatBytes(disk.total_space - disk.available_space)
 }
 
-onMounted(async () => {
+async function fetchSystemInfo() {
   try {
     const result = await invoke<SystemInfo>('get_system_info')
     info.value = result
+    error.value = ''
   } catch (e: any) {
     error.value = e?.toString() || '获取系统信息失败'
-  } finally {
-    loading.value = false
   }
+}
+
+async function refresh() {
+  refreshing.value = true
+  await fetchSystemInfo()
+  refreshing.value = false
+}
+
+onMounted(async () => {
+  await fetchSystemInfo()
+  loading.value = false
 })
 </script>
 
 <template>
   <div class="tool-page">
     <div class="page-header">
-      <h1 class="page-title">
-        <Monitor :size="24" />
-        {{ $t('systemInfo.title') }}
-      </h1>
-      <p class="page-desc">{{ $t('systemInfo.subtitle') }}</p>
+      <div class="page-header-left">
+        <h1 class="page-title">
+          <Monitor :size="24" />
+          {{ $t('systemInfo.title') }}
+        </h1>
+        <p class="page-desc">{{ $t('systemInfo.subtitle') }}</p>
+      </div>
+      <button class="refresh-btn" :disabled="refreshing" @click="refresh" :title="$t('common.refresh')">
+        <RefreshCw :size="18" :class="{ spin: refreshing }" />
+        <span>{{ $t('common.refresh') }}</span>
+      </button>
     </div>
 
     <!-- 加载状态 -->
@@ -293,7 +310,14 @@ onMounted(async () => {
 
 <style scoped>
 .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 24px;
+}
+
+.page-header-left {
+  flex: 1;
 }
 
 .page-title {
@@ -309,6 +333,33 @@ onMounted(async () => {
   color: var(--text-secondary);
   font-size: 14px;
   margin-left: 34px;
+}
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.refresh-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-card));
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .loading-state {
