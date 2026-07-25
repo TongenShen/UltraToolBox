@@ -43,11 +43,11 @@ export default {
 
   // About
   'about.subtitle': 'Cross-platform CLI Toolbox',
-  'about.positioning.title': '🎯 Positioning',
+  'about.positioning.title': 'Positioning',
   'about.positioning.desc': 'All-in-one collection of dev/ops CLI tools, ready to use out of the box',
-  'about.builtin.title': '🛠️ Built-in Tools',
+  'about.builtin.title': 'Built-in Tools',
   'about.builtin.desc': 'ADB · iPerf3 · Aria2 · Ping · cURL',
-  'about.platform.title': '💻 Current Platform',
+  'about.platform.title': 'Current Platform',
   'about.techstack.title': 'Tech Stack',
   'about.tech.tauri': 'Desktop Framework',
   'about.tech.vue': 'UI Framework',

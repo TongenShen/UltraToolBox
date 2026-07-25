@@ -43,11 +43,11 @@ export default {
 
   // 关于
   'about.subtitle': '跨平台命令行工具箱',
-  'about.positioning.title': '🎯 产品定位',
+  'about.positioning.title': '产品定位',
   'about.positioning.desc': '一站式收纳开发/运维/搞机常用命令行工具，免配置开箱即用',
-  'about.builtin.title': '🛠️ 内置工具',
+  'about.builtin.title': '内置工具',
   'about.builtin.desc': 'ADB · iPerf3 · Aria2 · Ping · cURL',
-  'about.platform.title': '💻 当前平台',
+  'about.platform.title': '当前平台',
   'about.techstack.title': '技术栈',
   'about.tech.tauri': '跨平台桌面框架',
   'about.tech.vue': '前端 UI 框架',
