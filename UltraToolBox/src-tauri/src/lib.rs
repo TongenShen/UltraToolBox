@@ -156,23 +156,43 @@ fn parse_power_info(root_password: Option<&str>) -> PowerInfo {
     }
 
     // 3. powermetrics — 功率信息 (需要 root, 有密码则用 sudo -S)
+    // 同时尝试两种格式: 带 --show-usage-summary 和不带的
     let pm_result = if let Some(pwd) = root_password {
-        run_cmd_sudo("powermetrics", &[
+        // 优先尝试有 summary 的格式
+        let r1 = run_cmd_sudo("powermetrics", &[
             "-s", "cpu_power,gpu_power",
             "-n", "1",
             "-i", "100",
             "--show-usage-summary",
-        ], pwd)
+        ], pwd);
+        if r1.is_some() {
+            r1
+        } else {
+            run_cmd_sudo("powermetrics", &[
+                "-s", "cpu_power,gpu_power",
+                "-n", "1",
+                "-i", "100",
+            ], pwd)
+        }
     } else {
-        run_cmd("powermetrics", &[
+        let r1 = run_cmd("powermetrics", &[
             "-s", "cpu_power,gpu_power",
             "-n", "1",
             "-i", "100",
             "--show-usage-summary",
-        ])
+        ]);
+        if r1.is_some() {
+            r1
+        } else {
+            run_cmd("powermetrics", &[
+                "-s", "cpu_power,gpu_power",
+                "-n", "1",
+                "-i", "100",
+            ])
+        }
     };
 
-    if let Some(pm) = pm_result {
+    if let Some(ref pm) = pm_result {
         info.powermetrics_available = true;
         for line in pm.lines() {
             let trimmed = line.trim();
@@ -182,6 +202,12 @@ fn parse_power_info(root_password: Option<&str>) -> PowerInfo {
                 info.gpu_power_mw = parse_power_value(val.trim());
             } else if let Some(val) = trimmed.strip_prefix("Combined Power:") {
                 info.combined_power_mw = parse_power_value(val.trim());
+            }
+        }
+        // 如果 Combined Power 没解析到，但 CPU 和 GPU 都有，则手动计算
+        if info.combined_power_mw.is_none() {
+            if let (Some(cpu), Some(gpu)) = (info.cpu_power_mw, info.gpu_power_mw) {
+                info.combined_power_mw = Some(cpu + gpu);
             }
         }
     }
