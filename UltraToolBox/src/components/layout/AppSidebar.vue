@@ -155,7 +155,9 @@ function handleSystemClick(item: ToolItem) {
               @click="navigate(item)"
               :title="$t(item.titleKey)"
             >
-              <span class="nav-icon">{{ item.icon }}</span>
+              <span class="nav-icon">
+                <component :is="iconMap[item.icon]" :size="18" />
+              </span>
               <span class="nav-label">{{ $t(item.titleKey) }}</span>
               <span
                 class="pin-btn"
