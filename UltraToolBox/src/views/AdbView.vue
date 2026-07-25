@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { executeCommand, spawnCommand, type CommandEvent } from '@/composables/useCommand'
 import { checkCommandExists } from '@/composables/useCommand'
 import LogPanel from '@/components/common/LogPanel.vue'
+import TooltipInput from '@/components/common/TooltipInput.vue'
 import { useProcessStore } from '@/stores/process'
 
 const { t } = useI18n()
@@ -567,19 +568,23 @@ onUnmounted(() => {
           <div class="panel-section">
             <h3>{{ $t('adb.wifi.title') }}</h3>
             <div class="connect-form">
-              <input
-                v-model="connectIp"
-                :placeholder="$t('adb.wifi.ipPlaceholder')"
-                class="input"
-                :disabled="connecting"
-              />
-              <input
-                v-model="connectPort"
-                :placeholder="$t('adb.wifi.port')"
-                class="input input-sm"
-                style="width: 80px"
-                :disabled="connecting"
-              />
+              <TooltipInput :tooltip="$t('adb.tooltip.connectIp')">
+                <input
+                  v-model="connectIp"
+                  :placeholder="$t('adb.wifi.ipPlaceholder')"
+                  class="input"
+                  :disabled="connecting"
+                />
+              </TooltipInput>
+              <TooltipInput :tooltip="$t('adb.tooltip.connectPort')">
+                <input
+                  v-model="connectPort"
+                  :placeholder="$t('adb.wifi.port')"
+                  class="input input-sm"
+                  style="width: 80px"
+                  :disabled="connecting"
+                />
+              </TooltipInput>
               <button class="btn" @click="connectDevice" :disabled="connecting || !connectIp.trim()">
                 {{ connecting ? $t('adb.wifi.connecting') : $t('adb.wifi.connect') }}
               </button>
@@ -643,12 +648,14 @@ onUnmounted(() => {
           <div class="panel-section">
             <h3>{{ $t('adb.apk.install.title') }}</h3>
             <div class="form-row">
-              <input
-                v-model="apkInstallPath"
-                :placeholder="$t('adb.apk.install.placeholder')"
-                class="input"
-                :disabled="installing"
-              />
+              <TooltipInput :tooltip="$t('adb.tooltip.installPath')">
+                <input
+                  v-model="apkInstallPath"
+                  :placeholder="$t('adb.apk.install.placeholder')"
+                  class="input"
+                  :disabled="installing"
+                />
+              </TooltipInput>
               <button class="btn" @click="installApk" :disabled="installing || !apkInstallPath.trim()">
                 {{ installing ? $t('adb.apk.installing') : $t('adb.apk.install') }}
               </button>
@@ -658,12 +665,14 @@ onUnmounted(() => {
           <div class="panel-section">
             <h3>{{ $t('adb.apk.uninstall.title') }}</h3>
             <div class="form-row">
-              <input
-                v-model="apkUninstallPackage"
-                :placeholder="$t('adb.apk.uninstall.placeholder')"
-                class="input"
-                :disabled="uninstalling"
-              />
+              <TooltipInput :tooltip="$t('adb.tooltip.uninstallPkg')">
+                <input
+                  v-model="apkUninstallPackage"
+                  :placeholder="$t('adb.apk.uninstall.placeholder')"
+                  class="input"
+                  :disabled="uninstalling"
+                />
+              </TooltipInput>
               <button class="btn btn-danger" @click="uninstallApk" :disabled="uninstalling || !apkUninstallPackage.trim()">
                 {{ uninstalling ? $t('adb.apk.uninstalling') : $t('adb.apk.uninstall') }}
               </button>
@@ -678,11 +687,13 @@ onUnmounted(() => {
               </button>
             </div>
             <div class="search-box" v-if="packagesList.length > 0">
-              <input
-                v-model="apkSearchQuery"
-                :placeholder="$t('adb.apk.searchPlaceholder')"
-                class="input"
-              />
+              <TooltipInput :tooltip="$t('adb.tooltip.searchPkg')">
+                <input
+                  v-model="apkSearchQuery"
+                  :placeholder="$t('adb.apk.searchPlaceholder')"
+                  class="input"
+                />
+              </TooltipInput>
             </div>
             <div class="package-list" v-if="packagesList.length > 0">
               <div

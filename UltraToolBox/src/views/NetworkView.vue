@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { executeCommand, spawnCommand, type CommandEvent } from '@/composables/useCommand'
 import { checkCommandExists } from '@/composables/useCommand'
 import LogPanel from '@/components/common/LogPanel.vue'
+import TooltipInput from '@/components/common/TooltipInput.vue'
 
 const { t } = useI18n()
 
@@ -234,19 +235,23 @@ onMounted(async () => {
           <div class="panel-section">
             <h3>{{ $t('network.ping.title') }}</h3>
             <div class="form-row">
-              <input
-                v-model="pingTarget"
-                :placeholder="$t('network.ping.target')"
-                class="input"
-                :disabled="pinging"
-              />
-              <input
-                v-model="pingCount"
-                :placeholder="$t('network.ping.count')"
-                class="input"
-                style="width: 70px; text-align: center"
-                :disabled="pinging"
-              />
+              <TooltipInput :tooltip="$t('network.ping.tooltip.target')">
+                <input
+                  v-model="pingTarget"
+                  :placeholder="$t('network.ping.target')"
+                  class="input"
+                  :disabled="pinging"
+                />
+              </TooltipInput>
+              <TooltipInput :tooltip="$t('network.ping.tooltip.count')">
+                <input
+                  v-model="pingCount"
+                  :placeholder="$t('network.ping.count')"
+                  class="input"
+                  style="width: 70px; text-align: center"
+                  :disabled="pinging"
+                />
+              </TooltipInput>
               <button
                 class="btn btn-primary"
                 @click="runPing"
@@ -284,31 +289,37 @@ onMounted(async () => {
 
             <div v-if="iperfMode === 'client'" class="form-group">
               <div class="form-row">
-                <input
-                  v-model="iperfServer"
-                  :placeholder="$t('network.iperf3.server')"
-                  class="input"
-                  :disabled="iperfRunning"
-                />
-                <input
-                  v-model="iperfPort"
-                  :placeholder="$t('network.iperf3.port')"
-                  class="input"
-                  style="width: 80px; text-align: center"
-                  :disabled="iperfRunning"
-                />
+                <TooltipInput :tooltip="$t('network.iperf3.tooltip.server')">
+                  <input
+                    v-model="iperfServer"
+                    :placeholder="$t('network.iperf3.server')"
+                    class="input"
+                    :disabled="iperfRunning"
+                  />
+                </TooltipInput>
+                <TooltipInput :tooltip="$t('network.iperf3.tooltip.port')">
+                  <input
+                    v-model="iperfPort"
+                    :placeholder="$t('network.iperf3.port')"
+                    class="input"
+                    style="width: 80px; text-align: center"
+                    :disabled="iperfRunning"
+                  />
+                </TooltipInput>
               </div>
               <div class="form-row" style="margin-top: 8px">
-                <input
-                  v-model="iperfDuration"
-                  :placeholder="$t('network.iperf3.duration')"
-                  class="input"
-                  style="width: 100px"
-                  :disabled="iperfRunning"
-                />
+                <TooltipInput :tooltip="$t('network.iperf3.tooltip.duration')">
+                  <input
+                    v-model="iperfDuration"
+                    :placeholder="$t('network.iperf3.duration')"
+                    class="input"
+                    style="width: 100px"
+                    :disabled="iperfRunning"
+                  />
+                </TooltipInput>
                 <label class="checkbox-label">
                   <input type="checkbox" v-model="iperfReverse" :disabled="iperfRunning" />
-                  {{ $t('network.iperf3.reverse') }}
+                  <TooltipInput :tooltip="$t('network.iperf3.tooltip.reverse')">{{ $t('network.iperf3.reverse') }}</TooltipInput>
                 </label>
               </div>
               <div class="form-actions" style="margin-top: 8px">
@@ -329,13 +340,15 @@ onMounted(async () => {
 
             <div v-else class="form-group">
               <div class="form-row">
-                <input
-                  v-model="iperfPort"
-                  :placeholder="$t('network.iperf3.port')"
-                  class="input"
-                  style="width: 120px"
-                  :disabled="iperfRunning"
-                />
+                <TooltipInput :tooltip="$t('network.iperf3.tooltip.port')">
+                  <input
+                    v-model="iperfPort"
+                    :placeholder="$t('network.iperf3.port')"
+                    class="input"
+                    style="width: 120px"
+                    :disabled="iperfRunning"
+                  />
+                </TooltipInput>
               </div>
               <div class="form-actions" style="margin-top: 8px">
                 <button
@@ -367,47 +380,57 @@ onMounted(async () => {
 
             <div class="form-group">
               <div class="form-row">
-                <select v-model="curlMethod" class="input" style="width: 100px; flex: none" :disabled="curlRunning">
-                  <option v-for="m in httpMethods" :key="m" :value="m">{{ m }}</option>
-                </select>
-                <input
-                  v-model="curlUrl"
-                  :placeholder="$t('network.curl.url')"
-                  class="input"
-                  :disabled="curlRunning"
-                />
+                <TooltipInput :tooltip="$t('network.curl.tooltip.method')">
+                  <select v-model="curlMethod" class="input" style="width: 100px; flex: none" :disabled="curlRunning">
+                    <option v-for="m in httpMethods" :key="m" :value="m">{{ m }}</option>
+                  </select>
+                </TooltipInput>
+                <TooltipInput :tooltip="$t('network.curl.tooltip.url')">
+                  <input
+                    v-model="curlUrl"
+                    :placeholder="$t('network.curl.url')"
+                    class="input"
+                    :disabled="curlRunning"
+                  />
+                </TooltipInput>
               </div>
 
               <div class="form-field" style="margin-top: 8px">
                 <label class="field-label">{{ $t('network.curl.headers') }}</label>
-                <textarea
-                  v-model="curlHeaders"
-                  placeholder="Content-Type: application/json&#10;Authorization: Bearer token"
-                  class="textarea"
-                  rows="3"
-                  :disabled="curlRunning"
-                ></textarea>
+                <TooltipInput :tooltip="$t('network.curl.tooltip.headers')">
+                  <textarea
+                    v-model="curlHeaders"
+                    placeholder="Content-Type: application/json&#10;Authorization: Bearer token"
+                    class="textarea"
+                    rows="3"
+                    :disabled="curlRunning"
+                  ></textarea>
+                </TooltipInput>
               </div>
 
               <div class="form-field" style="margin-top: 8px" v-if="['POST', 'PUT', 'PATCH'].includes(curlMethod)">
                 <label class="field-label">{{ $t('network.curl.body') }}</label>
-                <textarea
-                  v-model="curlBody"
-                  placeholder='{"key": "value"}'
-                  class="textarea"
-                  rows="3"
-                  :disabled="curlRunning"
-                ></textarea>
+                <TooltipInput :tooltip="$t('network.curl.tooltip.body')">
+                  <textarea
+                    v-model="curlBody"
+                    placeholder='{"key": "value"}'
+                    class="textarea"
+                    rows="3"
+                    :disabled="curlRunning"
+                  ></textarea>
+                </TooltipInput>
               </div>
 
               <div class="form-row" style="margin-top: 8px">
-                <input
-                  v-model="curlTimeout"
-                  :placeholder="$t('network.curl.timeout')"
-                  class="input"
-                  style="width: 80px"
-                  :disabled="curlRunning"
-                />
+                <TooltipInput :tooltip="$t('network.curl.tooltip.timeout')">
+                  <input
+                    v-model="curlTimeout"
+                    :placeholder="$t('network.curl.timeout')"
+                    class="input"
+                    style="width: 80px"
+                    :disabled="curlRunning"
+                  />
+                </TooltipInput>
                 <button
                   class="btn btn-primary"
                   @click="runCurl"

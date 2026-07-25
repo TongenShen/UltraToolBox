@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { executeCommand, spawnCommand, type CommandEvent } from '@/composables/useCommand'
 import { checkCommandExists } from '@/composables/useCommand'
 import LogPanel from '@/components/common/LogPanel.vue'
+import TooltipInput from '@/components/common/TooltipInput.vue'
 
 const { t } = useI18n()
 
@@ -306,12 +307,14 @@ onUnmounted(() => {
           <div class="panel-section">
             <h3>{{ $t('aria2.addDownload.title') }}</h3>
             <div class="form-row">
-              <input
-                v-model="downloadUrl"
-                :placeholder="$t('aria2.addDownload.urlPlaceholder')"
-                class="input"
-                :disabled="isDownloading"
-              />
+              <TooltipInput :tooltip="$t('aria2.tooltip.url')">
+                <input
+                  v-model="downloadUrl"
+                  :placeholder="$t('aria2.addDownload.urlPlaceholder')"
+                  class="input"
+                  :disabled="isDownloading"
+                />
+              </TooltipInput>
               <button
                 class="btn btn-primary"
                 @click="startDownload"
@@ -321,12 +324,14 @@ onUnmounted(() => {
               </button>
             </div>
             <div class="form-row" style="margin-top: 8px">
-              <input
-                v-model="downloadDir"
-                :placeholder="$t('aria2.downloadDir')"
-                class="input"
-                :disabled="isDownloading"
-              />
+              <TooltipInput :tooltip="$t('aria2.tooltip.downloadDir')">
+                <input
+                  v-model="downloadDir"
+                  :placeholder="$t('aria2.downloadDir')"
+                  class="input"
+                  :disabled="isDownloading"
+                />
+              </TooltipInput>
               <span class="hint-text">{{ $t('aria2.downloadDir.hint') }}</span>
             </div>
           </div>
@@ -359,12 +364,14 @@ onUnmounted(() => {
           <div class="panel-section">
             <h3>{{ $t('aria2.magnet.title') }}</h3>
             <div class="form-row">
-              <input
-                v-model="magnetLink"
-                placeholder="magnet:?xt=urn:btih:..."
-                class="input"
-                :disabled="btDownloading"
-              />
+              <TooltipInput :tooltip="$t('aria2.tooltip.magnet')">
+                <input
+                  v-model="magnetLink"
+                  placeholder="magnet:?xt=urn:btih:..."
+                  class="input"
+                  :disabled="btDownloading"
+                />
+              </TooltipInput>
               <button
                 class="btn btn-primary"
                 @click="startBtDownload"
@@ -378,12 +385,14 @@ onUnmounted(() => {
           <div class="panel-section">
             <h3>{{ $t('aria2.torrent.title') }}</h3>
             <div class="form-row">
-              <input
-                v-model="torrentPath"
-                :placeholder="$t('aria2.torrent.placeholder')"
-                class="input"
-                :disabled="btDownloading"
-              />
+              <TooltipInput :tooltip="$t('aria2.tooltip.torrent')">
+                <input
+                  v-model="torrentPath"
+                  :placeholder="$t('aria2.torrent.placeholder')"
+                  class="input"
+                  :disabled="btDownloading"
+                />
+              </TooltipInput>
               <button
                 class="btn btn-primary"
                 @click="startBtDownload"
@@ -402,24 +411,34 @@ onUnmounted(() => {
             <div class="config-grid">
               <div class="config-item">
                 <label class="config-label">{{ $t('aria2.serverConfig.port') }}</label>
-                <input v-model="serverPort" class="input" style="width: 100px" :disabled="serverStarted" />
+                <TooltipInput :tooltip="$t('aria2.tooltip.port')">
+                  <input v-model="serverPort" class="input" style="width: 100px" :disabled="serverStarted" />
+                </TooltipInput>
               </div>
               <div class="config-item">
                 <label class="config-label">RPC Secret</label>
-                <input v-model="rpcSecret" class="input" style="width: 160px" :disabled="serverStarted" />
+                <TooltipInput :tooltip="$t('aria2.tooltip.secret')">
+                  <input v-model="rpcSecret" class="input" style="width: 160px" :disabled="serverStarted" />
+                </TooltipInput>
               </div>
               <div class="config-item">
                 <label class="config-label">{{ $t('aria2.serverConfig.maxConcurrent') }}</label>
-                <input v-model="maxConcurrent" class="input" style="width: 80px" :disabled="serverStarted" />
+                <TooltipInput :tooltip="$t('aria2.tooltip.maxConcurrent')">
+                  <input v-model="maxConcurrent" class="input" style="width: 80px" :disabled="serverStarted" />
+                </TooltipInput>
               </div>
               <div class="config-item">
                 <label class="config-label">{{ $t('aria2.serverConfig.speedLimit') }}</label>
-                <input v-model="maxSpeed" class="input" style="width: 100px" :disabled="serverStarted" />
+                <TooltipInput :tooltip="$t('aria2.tooltip.maxSpeed')">
+                  <input v-model="maxSpeed" class="input" style="width: 100px" :disabled="serverStarted" />
+                </TooltipInput>
                 <span class="hint-text">KB/s</span>
               </div>
               <div class="config-item">
                 <label class="config-label">{{ $t('aria2.serverConfig.downloadDir') }}</label>
-                <input v-model="downloadDir" class="input" :disabled="serverStarted" />
+                <TooltipInput :tooltip="$t('aria2.tooltip.downloadDir')">
+                  <input v-model="downloadDir" class="input" :disabled="serverStarted" />
+                </TooltipInput>
               </div>
             </div>
             <div class="form-actions" style="margin-top: 12px">
