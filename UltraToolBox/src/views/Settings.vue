@@ -5,7 +5,7 @@ import { useAppStore, type ThemeMode } from '@/stores/app'
 import { useBinary } from '@/composables/useBinary'
 import { executeCommand } from '@/composables/useCommand'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const appStore = useAppStore()
 const { binaries, checkAllBinaries } = useBinary()
 
@@ -26,8 +26,9 @@ const localeOptions = [
   { value: 'ko-KR' as const, label: '한국어' }
 ]
 
-function setLocale(locale: string) {
-  appStore.setLocale(locale as any)
+function setLocale(loc: string) {
+  appStore.setLocale(loc as any)
+  locale.value = loc
 }
 
 // ====== 重新检测二进制 ======
