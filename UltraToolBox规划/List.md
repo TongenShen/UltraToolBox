@@ -13,4 +13,5 @@ windows:CMD,shell
 mac:zsh
 linux:bash
 
+添加工具搜索功能
 
