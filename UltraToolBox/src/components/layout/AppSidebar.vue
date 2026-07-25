@@ -116,71 +116,17 @@ function handleSystemClick(item: ToolItem) {
 
     <!-- Nav Items -->
     <div class="nav-scroll">
-      <!-- Section 1: 通用工具 -->
-      <div class="nav-section" v-if="!collapsed">
-        <div class="section-header collapsible" @click="generalExpanded = !generalExpanded">
-          <span class="collapse-arrow">{{ generalExpanded ? '▼' : '▶' }}</span>
-          <span class="section-title">{{ $t('sidebar.general') }}</span>
-        </div>
-        <div class="section-items" v-if="generalExpanded || searchQuery.trim() !== ''">
-          <button
-            v-for="item in filteredGeneralTools"
-            :key="item.path"
-            class="nav-item"
-            :class="{ active: activePath === item.path }"
-            @click="navigate(item)"
-            :title="$t(item.titleKey)"
-          >
-            <span class="nav-icon">{{ item.icon }}</span>
-            <span class="nav-label">{{ $t(item.titleKey) }}</span>
-            <span
-              class="pin-btn"
-              :class="{ pinned: isPinned(item) }"
-              @click.stop="togglePin(item)"
-              :title="isPinned(item) ? $t('sidebar.unpin') : $t('sidebar.pin')"
-            >
-              {{ isPinned(item) ? '📌' : '📍' }}
-            </span>
-          </button>
-          <div v-if="filteredGeneralTools.length === 0" class="search-empty">
-            {{ $t('sidebar.search.empty') }}
+      <!-- 展开状态：完整功能区 -->
+      <template v-if="!collapsed">
+        <!-- Section 1: 通用工具 -->
+        <div class="nav-section">
+          <div class="section-header collapsible" @click="generalExpanded = !generalExpanded">
+            <span class="collapse-arrow">{{ generalExpanded ? '▼' : '▶' }}</span>
+            <span class="section-title">{{ $t('sidebar.general') }}</span>
           </div>
-        </div>
-      </div>
-
-      <!-- Section 1: 系统工具 -->
-      <div class="nav-section" v-if="!collapsed">
-        <div class="section-header collapsible" @click="systemExpanded = !systemExpanded">
-          <span class="collapse-arrow">{{ systemExpanded ? '▼' : '▶' }}</span>
-          <span class="section-title">{{ $t('sidebar.system') }}</span>
-        </div>
-        <div class="section-items" v-if="systemExpanded">
-          <button
-            v-for="item in systemTools"
-            :key="item.path"
-            class="nav-item"
-            :class="{ active: activePath === item.path }"
-            @click="handleSystemClick(item)"
-            :title="$t(item.titleKey)"
-          >
-            <span class="nav-icon">{{ item.icon }}</span>
-            <span class="nav-label">{{ $t(item.titleKey) }}</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Divider -->
-      <div class="section-divider" v-if="!collapsed"></div>
-
-      <!-- Section 2: 固定工具 -->
-      <div class="nav-section" v-if="!collapsed">
-        <div class="section-header">
-          <span class="section-title">{{ $t('sidebar.pinned') }}</span>
-        </div>
-        <div class="section-items">
-          <template v-if="pinnedToolItems.length > 0">
+          <div class="section-items" v-if="generalExpanded || searchQuery.trim() !== ''">
             <button
-              v-for="item in pinnedToolItems"
+              v-for="item in filteredGeneralTools"
               :key="item.path"
               class="nav-item"
               :class="{ active: activePath === item.path }"
@@ -190,17 +136,90 @@ function handleSystemClick(item: ToolItem) {
               <span class="nav-icon">{{ item.icon }}</span>
               <span class="nav-label">{{ $t(item.titleKey) }}</span>
               <span
-                class="pin-btn pinned"
+                class="pin-btn"
+                :class="{ pinned: isPinned(item) }"
                 @click.stop="togglePin(item)"
-                :title="$t('sidebar.unpin')"
-              >✕</span>
+                :title="isPinned(item) ? $t('sidebar.unpin') : $t('sidebar.pin')"
+              >
+                {{ isPinned(item) ? '📌' : '📍' }}
+              </span>
             </button>
-          </template>
-          <div v-else class="pinned-empty">
-            {{ $t('sidebar.pinned.empty') }}
+            <div v-if="filteredGeneralTools.length === 0" class="search-empty">
+              {{ $t('sidebar.search.empty') }}
+            </div>
           </div>
         </div>
-      </div>
+
+        <!-- Section 1: 系统工具 -->
+        <div class="nav-section">
+          <div class="section-header collapsible" @click="systemExpanded = !systemExpanded">
+            <span class="collapse-arrow">{{ systemExpanded ? '▼' : '▶' }}</span>
+            <span class="section-title">{{ $t('sidebar.system') }}</span>
+          </div>
+          <div class="section-items" v-if="systemExpanded">
+            <button
+              v-for="item in systemTools"
+              :key="item.path"
+              class="nav-item"
+              :class="{ active: activePath === item.path }"
+              @click="handleSystemClick(item)"
+              :title="$t(item.titleKey)"
+            >
+              <span class="nav-icon">{{ item.icon }}</span>
+              <span class="nav-label">{{ $t(item.titleKey) }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="section-divider"></div>
+
+        <!-- Section 2: 固定工具 -->
+        <div class="nav-section">
+          <div class="section-header">
+            <span class="section-title">{{ $t('sidebar.pinned') }}</span>
+          </div>
+          <div class="section-items">
+            <template v-if="pinnedToolItems.length > 0">
+              <button
+                v-for="item in pinnedToolItems"
+                :key="item.path"
+                class="nav-item"
+                :class="{ active: activePath === item.path }"
+                @click="navigate(item)"
+                :title="$t(item.titleKey)"
+              >
+                <span class="nav-icon">{{ item.icon }}</span>
+                <span class="nav-label">{{ $t(item.titleKey) }}</span>
+                <span
+                  class="pin-btn pinned"
+                  @click.stop="togglePin(item)"
+                  :title="$t('sidebar.unpin')"
+                >✕</span>
+              </button>
+            </template>
+            <div v-else class="pinned-empty">
+              {{ $t('sidebar.pinned.empty') }}
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- 收缩状态：只显示固定工具的 emoji 图标 -->
+      <template v-else>
+        <div class="collapsed-pinned">
+          <button
+            v-for="item in pinnedToolItems"
+            :key="item.path"
+            class="collapsed-pin-item"
+            :class="{ active: activePath === item.path }"
+            @click="navigate(item)"
+            :title="$t(item.titleKey)"
+          >
+            <span class="collapsed-pin-icon">{{ item.icon }}</span>
+          </button>
+        </div>
+      </template>
     </div>
 
     <!-- Footer -->
@@ -471,5 +490,40 @@ function handleSystemClick(item: ToolItem) {
   flex-direction: column;
   gap: 2px;
   flex-shrink: 0;
+}
+
+/* Collapsed pinned icons */
+.collapsed-pinned {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  gap: 4px;
+}
+
+.collapsed-pin-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.collapsed-pin-item:hover {
+  background: var(--bg-card);
+}
+
+.collapsed-pin-item.active {
+  background: var(--accent);
+}
+
+.collapsed-pin-icon {
+  font-size: 20px;
+  line-height: 1;
 }
 </style>
