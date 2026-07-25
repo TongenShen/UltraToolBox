@@ -361,4 +361,7 @@ export default {
   // App.vue
   'app.toggleSidebar': '切换侧边栏',
   'app.status.idle': '● 空闲',
+
+  // CPU 跑分
+  'nav.benchmark': 'CPU 跑分',
 }

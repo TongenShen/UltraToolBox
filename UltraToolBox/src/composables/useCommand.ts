@@ -130,6 +130,55 @@ export async function executeSidecar(
 }
 
 /**
+ * 执行 sidecar 二进制命令并实时获取输出流
+ */
+export async function spawnSidecar(
+  binaryName: string,
+  args: string[] = [],
+  callback: ProcessCallback
+): Promise<{ kill: () => Promise<void> }> {
+  const command = Command.sidecar(`binaries/${binaryName}`, args)
+  let killed = false
+
+  command.stdout.on('data', (data: string) => {
+    if (!killed) {
+      callback({ type: 'stdout', data })
+    }
+  })
+
+  command.stderr.on('data', (data: string) => {
+    if (!killed) {
+      callback({ type: 'stderr', data })
+    }
+  })
+
+  command.on('error', (error: string) => {
+    if (!killed) {
+      callback({ type: 'error', data: error })
+    }
+  })
+
+  const child = await command.spawn()
+
+  command.on('close', () => {
+    if (!killed) {
+      callback({ type: 'done', data: '' })
+    }
+  })
+
+  return {
+    kill: async () => {
+      killed = true
+      try {
+        await child.kill()
+      } catch {
+        // Process may already be dead
+      }
+    }
+  }
+}
+
+/**
  * 检查命令是否存在
  */
 export async function checkCommandExists(name: string): Promise<boolean> {

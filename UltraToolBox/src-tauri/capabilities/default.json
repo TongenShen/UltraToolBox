@@ -53,6 +53,30 @@
           "cmd": "pkill",
           "args": true,
           "sidecar": false
+        },
+        {
+          "name": "sysbench",
+          "cmd": "sysbench",
+          "args": true,
+          "sidecar": true
+        },
+        {
+          "name": "sysctl",
+          "cmd": "sysctl",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "nproc",
+          "cmd": "nproc",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "uname",
+          "cmd": "uname",
+          "args": true,
+          "sidecar": false
         }
       ]
     },
@@ -98,6 +122,30 @@
         {
           "name": "pkill",
           "cmd": "pkill",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "sysbench",
+          "cmd": "sysbench",
+          "args": true,
+          "sidecar": true
+        },
+        {
+          "name": "sysctl",
+          "cmd": "sysctl",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "nproc",
+          "cmd": "nproc",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "uname",
+          "cmd": "uname",
           "args": true,
           "sidecar": false
         }

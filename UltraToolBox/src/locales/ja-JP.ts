@@ -349,4 +349,7 @@ export default {
 
   'app.toggleSidebar': 'サイドバー切り替え',
   'app.status.idle': '● 待機中',
+
+  // CPU ベンチマーク
+  'nav.benchmark': 'CPU ベンチマーク',
 }

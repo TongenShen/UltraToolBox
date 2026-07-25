@@ -349,4 +349,7 @@ export default {
 
   'app.toggleSidebar': '사이드바 전환',
   'app.status.idle': '● 대기 중',
+
+  // CPU 벤치마크
+  'nav.benchmark': 'CPU 벤치마크',
 }

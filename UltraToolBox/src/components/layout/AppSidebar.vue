@@ -24,6 +24,7 @@ const navItems: NavItem[] = [
   { path: '/adb', titleKey: 'nav.adb', icon: '📱' },
   { path: '/network', titleKey: 'nav.network', icon: '🌐' },
   { path: '/aria2', titleKey: 'nav.aria2', icon: '⬇️' },
+  { path: '/benchmark', titleKey: 'nav.benchmark', icon: '🖥️' },
   { path: '/terminal', titleKey: 'nav.terminal', icon: '💻' },
 ]
 

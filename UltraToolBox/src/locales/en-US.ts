@@ -361,4 +361,7 @@ export default {
   // App.vue
   'app.toggleSidebar': 'Toggle Sidebar',
   'app.status.idle': '● Idle',
+
+  // CPU Benchmark
+  'nav.benchmark': 'CPU Benchmark',
 }

@@ -29,6 +29,12 @@ const router = createRouter({
       meta: { title: 'Aria2 下载', icon: 'download' }
     },
     {
+      path: '/benchmark',
+      name: 'Benchmark',
+      component: () => import('@/views/BenchmarkView.vue'),
+      meta: { title: 'CPU 跑分', icon: 'cpu' }
+    },
+    {
       path: '/terminal',
       name: 'Terminal',
       component: () => import('@/views/TerminalView.vue'),
