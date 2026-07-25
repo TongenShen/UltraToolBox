@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { useI18n } from 'vue-i18n'
+import { useAppStore } from '@/stores/app'
 import { APP_VERSION } from '@/config/app'
 import {
   Cpu, HardDrive, Monitor, Server, Clock,
@@ -10,6 +11,7 @@ import {
 } from '@lucide/vue'
 
 const { t } = useI18n()
+const appStore = useAppStore()
 
 interface DiskInfo {
   mount_point: string
@@ -137,9 +139,10 @@ function diskUsed(disk: DiskInfo): string {
 // ---- 数据获取 ----
 async function fetchSystemInfo() {
   try {
+    const pwd = appStore.rootPassword || null
     const [sysResult, powerResult] = await Promise.all([
       invoke<SystemInfo>('get_system_info'),
-      invoke<PowerInfo>('get_power_info'),
+      invoke<PowerInfo>('get_power_info', { rootPassword: pwd }),
     ])
     info.value = sysResult
     if (powerResult.available) {
@@ -162,7 +165,8 @@ async function refresh() {
 // ---- 实时监控 ----
 async function fetchPowerOnly() {
   try {
-    const result = await invoke<PowerInfo>('get_power_info')
+    const pwd = appStore.rootPassword || null
+    const result = await invoke<PowerInfo>('get_power_info', { rootPassword: pwd })
     if (result.available) {
       powerInfo.value = result
     }
@@ -359,7 +363,7 @@ onUnmounted(() => {
               <span class="power-label"><Monitor :size="14" /> {{ $t('systemInfo.power.gpuPower') }}</span>
               <span class="power-value">{{ (powerInfo.gpu_power_mw / 1000).toFixed(2) }} W</span>
             </div>
-            <div class="power-item" v-if="powerInfo.combined_power_mw !== null">
+            <div class="power-item" v-if="powerInfo.combined_power_mw !== null" :title="$t('systemInfo.power.combinedPowerDesc')">
               <span class="power-label"><Zap :size="14" /> {{ $t('systemInfo.power.combinedPower') }}</span>
               <span class="power-value">{{ (powerInfo.combined_power_mw / 1000).toFixed(2) }} W</span>
             </div>

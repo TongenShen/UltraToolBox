@@ -15,6 +15,8 @@ export default {
  'common.loading': 'Loading...',
  'common.ready': 'Ready',
  'common.unavailable': 'Unavailable',
+ 'common.save': 'Save',
+ 'common.saved': 'Saved',
 
  // Navigation
  'nav.home': 'Home',
@@ -76,7 +78,8 @@ export default {
  'systemInfo.power.thermal': 'Thermal Pressure',
  'systemInfo.power.cpuPower': 'CPU Power',
  'systemInfo.power.gpuPower': 'GPU Power',
- 'systemInfo.power.combinedPower': 'Combined Power',
+ 'systemInfo.power.combinedPower': 'Total Power',
+ 'systemInfo.power.combinedPowerDesc': 'CPU + GPU + ANE combined power consumption',
  'systemInfo.power.monitor': 'Live Monitor',
  'systemInfo.power.monitoring': 'Monitoring…',
  'systemInfo.power.startMonitor': 'Start live monitoring',

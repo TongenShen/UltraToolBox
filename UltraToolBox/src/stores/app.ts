@@ -18,6 +18,9 @@ export const useAppStore = defineStore('app', () => {
   const savedTooltips = typeof localStorage !== 'undefined' ? localStorage.getItem('ultratoolbox-tooltips') : null
   const showTooltips = ref(savedTooltips !== 'false') // 默认开启
 
+  const savedRootPassword = typeof localStorage !== 'undefined' ? localStorage.getItem('ultratoolbox-root-password') : null
+  const rootPassword = ref(savedRootPassword || '')
+
   const isDark = computed(() => theme.value === 'dark')
 
   function toggleTheme() {
@@ -45,16 +48,23 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('ultratoolbox-tooltips', String(showTooltips.value))
   }
 
+  function setRootPassword(password: string) {
+    rootPassword.value = password
+    localStorage.setItem('ultratoolbox-root-password', password)
+  }
+
   return {
     theme,
     locale,
     sidebarCollapsed,
     showTooltips,
+    rootPassword,
     isDark,
     toggleTheme,
     setTheme,
     setLocale,
     toggleSidebar,
-    toggleTooltips
+    toggleTooltips,
+    setRootPassword
   }
 })

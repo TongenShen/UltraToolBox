@@ -15,6 +15,8 @@ export default {
  'common.loading': '加载中...',
  'common.ready': '就绪',
  'common.unavailable': '不可用',
+ 'common.save': '保存',
+ 'common.saved': '已保存',
 
  // 导航
  'nav.home': '首页',
@@ -77,6 +79,7 @@ export default {
  'systemInfo.power.cpuPower': 'CPU 功率',
  'systemInfo.power.gpuPower': 'GPU 功率',
  'systemInfo.power.combinedPower': '总功率',
+ 'systemInfo.power.combinedPowerDesc': 'CPU + GPU + ANE 合并总功耗',
  'systemInfo.power.monitor': '实时监控',
  'systemInfo.power.monitoring': '监控中…',
  'systemInfo.power.startMonitor': '开始实时监控',
@@ -423,6 +426,9 @@ export default {
  'settings.language.title': ' 语言 / Language',
  'settings.tooltip.title': '输入提示',
  'settings.tooltip.enabled': '启用输入提示',
+ 'settings.rootPassword.title': 'Root 密码',
+ 'settings.rootPassword.desc': '用于 powermetrics 获取实时功率数据（需要 macOS 管理员权限）',
+ 'settings.rootPassword.placeholder': '输入你的管理员密码',
  'settings.appInfo.title': ' 应用信息',
  'settings.appInfo.version': '应用版本',
  'settings.appInfo.theme': '当前主题',

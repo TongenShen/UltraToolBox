@@ -1,4 +1,5 @@
 use serde::Serialize;
+use std::io::Write;
 use std::process::Command;
 use sysinfo::{Disks, System};
 
@@ -59,7 +60,31 @@ fn run_cmd(cmd: &str, args: &[&str]) -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
-fn parse_power_info() -> PowerInfo {
+/// 通过 sudo -S 从 stdin 读取密码来执行命令
+fn run_cmd_sudo(cmd: &str, args: &[&str], password: &str) -> Option<String> {
+    let mut child = Command::new("sudo")
+        .arg("-S")
+        .arg(cmd)
+        .args(args)
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::null())
+        .spawn()
+        .ok()?;
+
+    if let Some(mut stdin) = child.stdin.take() {
+        let _ = stdin.write_all(format!("{}\n", password).as_bytes());
+    }
+
+    let output = child.wait_with_output().ok()?;
+    if output.status.success() {
+        Some(String::from_utf8_lossy(&output.stdout).trim().to_string())
+    } else {
+        None
+    }
+}
+
+fn parse_power_info(root_password: Option<&str>) -> PowerInfo {
     let os = std::env::consts::OS;
     if os != "macos" {
         return PowerInfo::default();
@@ -130,19 +155,24 @@ fn parse_power_info() -> PowerInfo {
         }
     }
 
-    // 3. powermetrics — 功率信息 (可能需要 root, 捕获失败)
-    if let Some(pm) = run_cmd(
-        "powermetrics",
-        &[
-            "-s",
-            "power",
-            "-n",
-            "1",
-            "-i",
-            "100",
+    // 3. powermetrics — 功率信息 (需要 root, 有密码则用 sudo -S)
+    let pm_result = if let Some(pwd) = root_password {
+        run_cmd_sudo("powermetrics", &[
+            "-s", "cpu_power,gpu_power",
+            "-n", "1",
+            "-i", "100",
             "--show-usage-summary",
-        ],
-    ) {
+        ], pwd)
+    } else {
+        run_cmd("powermetrics", &[
+            "-s", "cpu_power,gpu_power",
+            "-n", "1",
+            "-i", "100",
+            "--show-usage-summary",
+        ])
+    };
+
+    if let Some(pm) = pm_result {
         info.powermetrics_available = true;
         for line in pm.lines() {
             let trimmed = line.trim();
@@ -245,8 +275,8 @@ fn get_system_info() -> SystemInfo {
 }
 
 #[tauri::command]
-fn get_power_info() -> PowerInfo {
-    parse_power_info()
+fn get_power_info(root_password: Option<String>) -> PowerInfo {
+    parse_power_info(root_password.as_deref())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

@@ -14,6 +14,14 @@ import { Loader, CheckCircle, XCircle } from '@lucide/vue'
 const activeSection = ref<'general' | 'binaries'>('general')
 const appVersion = ref(`v${APP_VERSION}`)
 
+const passwordSaved = ref(false)
+
+function savePassword() {
+  // 密码已经通过 @input 实时保存了，这里只是给一个反馈
+  passwordSaved.value = true
+  setTimeout(() => { passwordSaved.value = false }, 2000)
+}
+
 // ====== 主题 ======
 function setTheme(mode: ThemeMode) {
   appStore.setTheme(mode)
@@ -142,6 +150,27 @@ onMounted(async () => {
               @click="appStore.toggleTooltips()"
             >
               <span class="toggle-knob"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3>{{ $t('settings.rootPassword.title') }}</h3>
+          <p class="section-desc">{{ $t('settings.rootPassword.desc') }}</p>
+          <div class="password-row">
+            <input
+              type="password"
+              class="password-input"
+              :value="appStore.rootPassword"
+              @input="appStore.setRootPassword(($event.target as HTMLInputElement).value)"
+              :placeholder="$t('settings.rootPassword.placeholder')"
+            />
+            <button
+              class="btn btn-sm"
+              :class="{ saved: passwordSaved }"
+              @click="savePassword"
+            >
+              {{ passwordSaved ? $t('common.saved') : $t('common.save') }}
             </button>
           </div>
         </div>
@@ -559,5 +588,47 @@ onMounted(async () => {
 
 .spin {
   animation: spin 1s linear infinite;
+}
+
+/* Password Input */
+.section-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  margin-top: -8px;
+}
+
+.password-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.password-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.password-input:focus {
+  border-color: var(--accent);
+}
+
+.password-input::placeholder {
+  font-family: inherit;
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.btn.saved {
+  border-color: #22c55e;
+  color: #22c55e;
 }
 </style>
