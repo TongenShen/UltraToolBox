@@ -1381,3 +1381,174 @@ npm run tauri dev
 - **CI/CD** — GitHub Actions 自动构建多平台安装包
 
 已进行更改。
+
+
+User: 帮我根据这个项目的开发过程和文件结构和使用方式写一个适合发布在 github 上的 readme
+
+GitHub Copilot: Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/package.json)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src-tauri/Cargo.toml)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src-tauri/tauri.conf.json)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/router/index.ts)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/App.vue#1-1), lines 1 to 100
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/components/layout/AppSidebar.vue#1-1), lines 1 to 100
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/views/Home.vue#1-1), lines 1 to 100
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/views/Settings.vue#1-1), lines 1 to 100
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/views/About.vue#1-1), lines 1 to 100
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/views/AdbView.vue#1-1), lines 1 to 200
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/views/NetworkView.vue#1-1), lines 1 to 200
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/views/Aria2View.vue#1-1), lines 1 to 200
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/views/TerminalView.vue#1-1), lines 1 to 100
+
+Searched for files matching `**/README.md`, 1 match
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/composables/useCommand.ts#1-1), lines 1 to 100
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/types/index.ts)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/composables/useBinary.ts#1-1), lines 1 to 100
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/stores/app.ts)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/stores/process.ts#1-1), lines 1 to 100
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/stores/tools.ts)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/README.md)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src/components/common/LogPanel.vue#1-1), lines 1 to 100
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/src-tauri/src/lib.rs)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/LICENSE)
+
+Created [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/README.md)
+
+
+
+
+```
+
+```
+已为你写好 GitHub 适用版 README.md，内容覆盖：
+
+- **项目简介** — 定位和核心理念
+- **功能特性** — 五大工具（ADB / 网络 / Aria2 / 终端 / 设置）的详细功能表格
+- **技术栈** — 每层使用的技术及用途
+- **快速开始** — 前置条件、安装运行、构建安装包
+- **项目结构** — 完整的目录树说明
+- **核心架构** — 命令执行引擎、进程管理、日志面板的设计思路
+- **贡献指南** — 开发提示和 PR 流程
+- **许可证** — MIT
+
+README 中 badge 全部使用 `flat-square` 风格，整体布局简洁清晰，直接替换了原先 Tauri 模板的默认 README。
+
+已进行更改。
+
+User: 首先,写在项目根目录,然后要介绍各个文件夹是干嘛的,然后加上常用的语言对应的翻译版,不同的翻译版用不同 md 文件分开
+
+GitHub Copilot: Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/README.md#1-1), lines 1 to 50
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox%E8%A7%84%E5%88%92)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/README.md#1-1), lines 1 to 100
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/.gitignore)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/UltraToolBox/README.md#1-1), lines 1 to 10
+
+好的，现在 README 已经在根目录了。我需要：
+1. 更新根目录 README.md，加入各文件夹说明
+2. 删除子目录中重复的 README
+3. 创建多语言翻译版
+
+已创建 5 个待办事项
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox/README.md#1-1), lines 1 to 200
+
+现在更新根目录 README，加入文件夹说明，并同时创建翻译版和删除子目录重复文件。
+
+
+
+
+
+
+```
+
+```
+
+
+正在启动: *删除子目录重复 README.md* (2/5)
+
+Ran terminal command:  rm /Users/shentongen/Desktop/UltraToolBox/UltraToolBox/README.md
+
+正在启动: *创建英文翻译版 README.en.md* (3/5)
+
+Created [](file:///Users/shentongen/Desktop/UltraToolBox/README.en.md)
+
+Created [](file:///Users/shentongen/Desktop/UltraToolBox/README.ja.md)
+
+Created [](file:///Users/shentongen/Desktop/UltraToolBox/README.ko.md)
+
+已完成: *创建英文翻译版 README.en.md* (3/5)
+
+Read [](file:///Users/shentongen/Desktop/UltraToolBox)
+
+全部完成！根目录现在的文件结构：
+
+```
+UltraToolBox/
+├── README.md           # 🇨🇳 中文版（主文档，含文件夹说明）
+├── README.en.md        # 🇬🇧 English
+├── README.ja.md        # 🇯🇵 日本語
+├── README.ko.md        # 🇰🇷 한국어
+├── LICENSE             # MIT License
+├── UltraToolBox/       # 🎯 主项目源码
+├── UltraToolBox规划/    # 📝 规划文档
+└── .gitignore
+```
+
+各 README 顶部都加了语言切换链接，方便互相跳转。中文版首页新增了 **「目录结构」** 章节，逐一说明了 UltraToolBox 和 UltraToolBox规划 两个文件夹的用途，路径指引也做了相应调整（`cd UltraToolBox/UltraToolBox`）。
+
+已进行更改。
+
+User: 帮我完善一下这个 gitignore
+
+GitHub Copilot: 
+
+
+```
+
+```
+已完善 .gitignore，主要补充了以下内容：
+
+| 类别 | 新增项 |
+|------|--------|
+| **构建产物** | `*.tsbuildinfo` |
+| **依赖** | `.pnpm-store`、`.yarn`、`pnpm-lock.yaml` |
+| **日志** | `*.log`（通用）、`logs/` 目录 |
+| **macOS 垃圾** | `.DocumentRevisions-V100`、`.fseventsd`、`.Spotlight-V100` 等 |
+| **Windows 垃圾** | `Thumbs.db`、`Desktop.ini`、`$RECYCLE.BIN/` 等 |
+| **Linux 垃圾** | `*.dump`、`*.core`、`~$*` |
+| **编辑器** | `*.swp`、`*.swo`、`*~`（vim）、`*.iml`（IntelliJ） |
+| **Tauri** | `src-tauri/binaries/`（下载的二进制）、`src-tauri/gen/schemas/`（生成模式） |
+| **嵌套路径** | 明确忽略 `UltraToolBox/node_modules/`、`UltraToolBox/dist/`、`UltraToolBox/src-tauri/target/` |
+| **安全** | `*.pem`、`*.cert`、`*.crt`、`*.key`（私钥/证书） |
+| **其他** | `.history`、`*.orig`（合并冲突备份） |
+
+每个类别加了分隔注释，方便后续维护。
+
+已进行更改。
