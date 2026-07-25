@@ -51,6 +51,12 @@ const router = createRouter({
       name: 'About',
       component: () => import('@/views/About.vue'),
       meta: { title: '关于', icon: 'information' }
+    },
+    {
+      path: '/system-info',
+      name: 'SystemInfo',
+      component: () => import('@/views/SystemInfoView.vue'),
+      meta: { title: '系统信息', icon: 'monitor' }
     }
   ]
 })

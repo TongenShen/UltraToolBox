@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useToolsStore, type ToolItem } from '@/stores/tools'
 import {
   Home, Smartphone, Globe, Download, Monitor, Terminal,
-  Apple, Monitor as Window, Wrench,
+  Apple, Monitor as Window, Wrench, Activity,
   Settings, Info,
   ChevronDown, ChevronRight, X, Pin, PinOff, Search
 } from '@lucide/vue'
@@ -32,6 +32,7 @@ const iconMap: Record<string, any> = {
   apple: Apple,
   window: Window,
   wrench: Wrench,
+  activity: Activity,
   settings: Settings,
   info: Info,
 }
@@ -53,6 +54,7 @@ const generalTools: ToolItem[] = [
   { path: '/aria2', titleKey: 'nav.aria2', icon: 'download' },
   { path: '/benchmark', titleKey: 'nav.benchmark', icon: 'monitor' },
   { path: '/terminal', titleKey: 'nav.terminal', icon: 'terminal' },
+  { path: '/system-info', titleKey: 'nav.systemInfo', icon: 'activity' },
 ]
 
 const systemTools: ToolItem[] = [
