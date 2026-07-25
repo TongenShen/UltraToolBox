@@ -14,6 +14,7 @@ export default {
   'common.loading': '読み込み中...',
   'common.ready': '準備完了',
   'common.unavailable': '利用不可',
+  'common.collapse': 'サイドバーを折りたたむ',
 
   'nav.home': 'ホーム',
   'nav.adb': 'ADB ツール',
@@ -22,6 +23,19 @@ export default {
   'nav.terminal': 'ターミナル',
   'nav.settings': '設定',
   'nav.about': '情報',
+
+  // サイドバー
+  'sidebar.search.placeholder': 'ツールを検索...',
+  'sidebar.search.empty': '一致するツールが見つかりません',
+  'sidebar.general': '汎用ツール',
+  'sidebar.system': 'システムツール',
+  'sidebar.system.macos': 'macOS',
+  'sidebar.system.windows': 'Windows',
+  'sidebar.system.linux': 'Linux',
+  'sidebar.pinned': '固定ツール',
+  'sidebar.pinned.empty': '固定ツールはありません。ツールにカーソルを合わせて 📌 をクリック',
+  'sidebar.pin': 'ツールバーに固定',
+  'sidebar.unpin': '固定解除',
 
   'home.welcome.title': 'UltraToolBox へようこそ',
   'home.welcome.subtitle': 'クロスプラットフォーム CLI ツールボックス · adb/iperf3/aria2 内蔵 · すぐに使える',

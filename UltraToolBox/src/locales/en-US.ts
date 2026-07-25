@@ -15,6 +15,7 @@ export default {
   'common.loading': 'Loading...',
   'common.ready': 'Ready',
   'common.unavailable': 'Unavailable',
+  'common.collapse': 'Collapse sidebar',
 
   // Navigation
   'nav.home': 'Home',
@@ -24,6 +25,19 @@ export default {
   'nav.terminal': 'Terminal',
   'nav.settings': 'Settings',
   'nav.about': 'About',
+
+  // Sidebar
+  'sidebar.search.placeholder': 'Search tools...',
+  'sidebar.search.empty': 'No matching tools found',
+  'sidebar.general': 'General Tools',
+  'sidebar.system': 'System Tools',
+  'sidebar.system.macos': 'macOS',
+  'sidebar.system.windows': 'Windows',
+  'sidebar.system.linux': 'Linux',
+  'sidebar.pinned': 'Pinned Tools',
+  'sidebar.pinned.empty': 'No pinned tools. Hover a tool and click 📌 to pin',
+  'sidebar.pin': 'Pin to toolbar',
+  'sidebar.unpin': 'Unpin',
 
   // Home
   'home.welcome.title': 'Welcome to UltraToolBox',

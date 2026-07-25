@@ -14,6 +14,7 @@ export default {
   'common.loading': '로딩 중...',
   'common.ready': '준비됨',
   'common.unavailable': '사용 불가',
+  'common.collapse': '사이드바 접기',
 
   'nav.home': '홈',
   'nav.adb': 'ADB 도구',
@@ -22,6 +23,19 @@ export default {
   'nav.terminal': '터미널',
   'nav.settings': '설정',
   'nav.about': '정보',
+
+  // 사이드바
+  'sidebar.search.placeholder': '도구 검색...',
+  'sidebar.search.empty': '일치하는 도구가 없습니다',
+  'sidebar.general': '일반 도구',
+  'sidebar.system': '시스템 도구',
+  'sidebar.system.macos': 'macOS',
+  'sidebar.system.windows': 'Windows',
+  'sidebar.system.linux': 'Linux',
+  'sidebar.pinned': '고정 도구',
+  'sidebar.pinned.empty': '고정된 도구가 없습니다. 도구에 마우스를 올리고 📌 클릭',
+  'sidebar.pin': '툴바에 고정',
+  'sidebar.unpin': '고정 해제',
 
   'home.welcome.title': 'UltraToolBox에 오신 것을 환영합니다',
   'home.welcome.subtitle': '크로스 플랫폼 CLI 도구상자 · adb/iperf3/aria2 내장 · 바로 사용 가능',

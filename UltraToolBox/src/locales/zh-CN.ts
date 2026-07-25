@@ -15,6 +15,7 @@ export default {
   'common.loading': '加载中...',
   'common.ready': '就绪',
   'common.unavailable': '不可用',
+  'common.collapse': '折叠侧边栏',
 
   // 导航
   'nav.home': '首页',
@@ -24,6 +25,19 @@ export default {
   'nav.terminal': '终端',
   'nav.settings': '设置',
   'nav.about': '关于',
+
+  // 侧边栏
+  'sidebar.search.placeholder': '搜索工具...',
+  'sidebar.search.empty': '未找到匹配的工具',
+  'sidebar.general': '通用工具',
+  'sidebar.system': '系统工具',
+  'sidebar.system.macos': 'macOS',
+  'sidebar.system.windows': 'Windows',
+  'sidebar.system.linux': 'Linux',
+  'sidebar.pinned': '固定工具',
+  'sidebar.pinned.empty': '暂无固定工具，悬停工具点击 📌 固定',
+  'sidebar.pin': '固定到工具栏',
+  'sidebar.unpin': '取消固定',
 
   // 首页
   'home.welcome.title': '欢迎使用 UltraToolBox',
