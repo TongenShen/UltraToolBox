@@ -546,14 +546,17 @@ function handleSystemClick(item: ToolItem) {
   cursor: pointer;
   border-radius: 8px;
   transition: all 0.15s ease;
+  color: var(--text-secondary);
 }
 
 .collapsed-pin-item:hover {
   background: var(--bg-card);
+  color: var(--text-primary);
 }
 
 .collapsed-pin-item.active {
   background: var(--accent);
+  color: #ffffff;
 }
 
 .collapsed-pin-icon {
