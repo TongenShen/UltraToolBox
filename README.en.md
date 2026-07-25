@@ -103,10 +103,24 @@ Lightweight multi-protocol download tool:
 
 One-click system terminal launcher, auto-detects current platform (macOS / Windows / Linux), supports iTerm2 (macOS).
 
+### 🖥️ System Information (macOS Enhanced)
+
+Comprehensive system status monitoring panel:
+
+| Feature | Description |
+|---------|-------------|
+| **CPU Info** | Model, cores, frequency, real-time usage, load average |
+| **Memory Info** | Total, used, available, usage bar, swap, **memory pressure** (macOS) |
+| **Disk Info** | Mount points, capacity, used space, usage bars |
+| **System Info** | Hostname, OS, kernel, uptime, process count |
+| **Real-time Power Monitor** | macOS only, continuous CPU/GPU/combined power monitoring via background powermetrics process, supports root password saving |
+
 ### ⚙️ Settings & Personalization
 
 - **Theme Switch** — Toggle between dark/light mode
+- **Multi-language** — 简体中文 / English / 日本語 / 한국어
 - **Binary Manager** — Check availability and version info of adb / iperf3 / aria2c / curl / ping
+- **Root Password** — Save root password for macOS power monitoring
 
 ---
 
@@ -116,12 +130,15 @@ One-click system terminal launcher, auto-detects current platform (macOS / Windo
 |-------|-----------|---------|
 | **Desktop Framework** | [Tauri 2](https://v2.tauri.app/) | Cross-platform desktop app container, small footprint, high performance |
 | **Frontend Framework** | [Vue 3](https://vuejs.org/) + [TypeScript](https://www.typescriptlang.org/) | UI layer development |
-| **UI Component Library** | [Naive UI](https://www.naiveui.com/) | High-quality Vue 3 components |
+| **UI** | [Naive UI](https://www.naiveui.com/) + [Lucide](https://lucide.dev/) | Vue 3 components + vector icons |
+| **Internationalization** | [vue-i18n](https://vue-i18n.intlify.dev/) | 4 languages (zh-CN / en-US / ja-JP / ko-KR) |
 | **State Management** | [Pinia](https://pinia.vuejs.org/) | Global state management |
 | **Router** | [Vue Router](https://router.vuejs.org/) | Page routing |
 | **Build Tool** | [Vite](https://vitejs.dev/) | Frontend build tooling |
-| **Backend Language** | [Rust](https://www.rust-lang.org/) | System calls, plugin extensions |
+| **Backend Language** | [Rust](https://www.rust-lang.org/) | System calls, plugin extensions, power monitoring |
+| **System Info** | [sysinfo](https://crates.io/crates/sysinfo) | CPU/memory/disk/process/load collection |
 | **Tauri Plugins** | shell / fs / dialog / process / opener | Command execution, file operations, dialogs |
+| **macOS Power** | powermetrics + pmset | Real-time CPU/GPU/combined power monitoring |
 
 ---
 
@@ -175,20 +192,22 @@ UltraToolBox/
 ├── src/
 │   ├── main.ts                     # Vue app entry point
 │   ├── App.vue                     # Main layout (sidebar + content + status bar)
-│   ├── router/index.ts             # Route config (7 pages, lazy-loaded)
+│   ├── router/index.ts             # Route config (8 pages, lazy-loaded)
 │   ├── stores/
-│   │   ├── app.ts                  # App state (theme/sidebar)
+│   │   ├── app.ts                  # App state (theme/sidebar/rootPassword/locale)
 │   │   ├── tools.ts                # Tool binary config
 │   │   └── process.ts              # Process manager (start/kill/status/log)
 │   ├── composables/
 │   │   ├── useCommand.ts           # Command execution engine (execute/spawn)
 │   │   └── useBinary.ts            # Binary detection (check/version/status)
+│   ├── locales/                    # i18n translations (zh-CN / en-US / ja-JP / ko-KR)
 │   ├── types/index.ts              # TypeScript type definitions
 │   ├── components/
 │   │   ├── layout/AppSidebar.vue   # Collapsible sidebar navigation
 │   │   └── common/LogPanel.vue     # Unified log panel (terminal style)
 │   └── views/
 │       ├── Home.vue                # 🏠 Dashboard
+│       ├── SystemInfoView.vue      # 🖥️ System Info (CPU/memory/disk/power monitor)
 │       ├── AdbView.vue             # 📱 ADB Debug Bridge
 │       ├── NetworkView.vue         # 🌐 Network Tools
 │       ├── Aria2View.vue           # ⬇️ Aria2 Downloader
@@ -201,7 +220,8 @@ UltraToolBox/
     ├── capabilities/default.json   # Permission config
     └── src/
         ├── main.rs                 # Entry point
-        └── lib.rs                  # Plugin registration (shell/fs/dialog/process/opener)
+        └── lib.rs                  # System info collection / power monitoring background process / plugin registration
+                                    # (sysinfo + powermetrics + pmset)
 ```
 
 ---

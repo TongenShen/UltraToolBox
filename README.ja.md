@@ -103,10 +103,24 @@ UltraToolBox/
 
 ワンクリックでシステムターミナルを起動、プラットフォーム（macOS / Windows / Linux）を自動検出、iTerm2（macOS）に対応。
 
+### 🖥️ システム情報（macOS 拡張）
+
+包括的なシステム状態監視パネル：
+
+| 機能 | 説明 |
+|------|------|
+| **CPU 情報** | モデル、コア数、周波数、リアルタイム使用率、ロードアベレージ |
+| **メモリ情報** | 総容量、使用中、利用可能、使用率バー、スワップ、**メモリプレッシャー**（macOS） |
+| **ディスク情報** | マウントポイント、容量、使用済み容量、使用率バー |
+| **システム情報** | ホスト名、OS、カーネル、稼働時間、プロセス数 |
+| **リアルタイム電力監視** | macOS 専用、バックグラウンドの powermetrics プロセスで CPU/GPU/合計電力を継続監視、root パスワード保存対応 |
+
 ### ⚙️ 設定とカスタマイズ
 
 - **テーマ切替** — ダーク/ライトモードの切り替え
+- **多言語対応** — 简体中文 / English / 日本語 / 한국어
 - **バイナリ管理** — adb / iperf3 / aria2c / curl / ping の可用性とバージョン情報を確認
+- **Root パスワード** — macOS 電力監視用の root パスワードを保存
 
 ---
 
@@ -116,12 +130,15 @@ UltraToolBox/
 |---------|------|------|
 | **デスクトップフレームワーク** | [Tauri 2](https://v2.tauri.app/) | クロスプラットフォームデスクトップアプリ、軽量・高性能 |
 | **フロントエンド** | [Vue 3](https://vuejs.org/) + [TypeScript](https://www.typescriptlang.org/) | UI 層の開発 |
-| **UI コンポーネント** | [Naive UI](https://www.naiveui.com/) | 高品質な Vue 3 コンポーネント |
+| **UI** | [Naive UI](https://www.naiveui.com/) + [Lucide](https://lucide.dev/) | Vue 3 コンポーネント + ベクターアイコン |
+| **国際化** | [vue-i18n](https://vue-i18n.intlify.dev/) | 4 言語対応（zh-CN / en-US / ja-JP / ko-KR） |
 | **状態管理** | [Pinia](https://pinia.vuejs.org/) | グローバル状態管理 |
 | **ルーター** | [Vue Router](https://router.vuejs.org/) | ページルーティング |
 | **ビルドツール** | [Vite](https://vitejs.dev/) | フロントエンドビルド |
-| **バックエンド言語** | [Rust](https://www.rust-lang.org/) | システムコール、プラグイン拡張 |
+| **バックエンド言語** | [Rust](https://www.rust-lang.org/) | システムコール、プラグイン拡張、電力監視 |
+| **システム情報** | [sysinfo](https://crates.io/crates/sysinfo) | CPU/メモリ/ディスク/プロセス/負荷の収集 |
 | **Tauri プラグイン** | shell / fs / dialog / process / opener | コマンド実行、ファイル操作、ダイアログ |
+| **macOS 電力** | powermetrics + pmset | リアルタイム CPU/GPU/合計電力監視 |
 
 ---
 
@@ -175,20 +192,22 @@ UltraToolBox/
 ├── src/
 │   ├── main.ts                     # Vue アプリエントリーポイント
 │   ├── App.vue                     # メインレイアウト（サイドバー + コンテンツ + ステータスバー）
-│   ├── router/index.ts             # ルート設定（7 ページ、遅延ロード）
+│   ├── router/index.ts             # ルート設定（8 ページ、遅延ロード）
 │   ├── stores/
-│   │   ├── app.ts                  # アプリ状態（テーマ/サイドバー）
+│   │   ├── app.ts                  # アプリ状態（テーマ/サイドバー/rootパスワード/言語）
 │   │   ├── tools.ts                # ツールバイナリ設定
 │   │   └── process.ts              # プロセス管理（開始/停止/状態/ログ）
 │   ├── composables/
 │   │   ├── useCommand.ts           # コマンド実行エンジン（execute / spawn）
 │   │   └── useBinary.ts            # バイナリ検出（確認/バージョン/状態）
+│   ├── locales/                    # i18n 翻訳（zh-CN / en-US / ja-JP / ko-KR）
 │   ├── types/index.ts              # TypeScript 型定義
 │   ├── components/
 │   │   ├── layout/AppSidebar.vue   # 折りたたみ可能なサイドバーナビゲーション
 │   │   └── common/LogPanel.vue     # 統一ログパネル（ターミナルスタイル）
 │   └── views/
 │       ├── Home.vue                # 🏠 ダッシュボード
+│       ├── SystemInfoView.vue      # 🖥️ システム情報（CPU/メモリ/ディスク/電力監視）
 │       ├── AdbView.vue             # 📱 ADB デバッグブリッジ
 │       ├── NetworkView.vue         # 🌐 ネットワークツール
 │       ├── Aria2View.vue           # ⬇️ Aria2 ダウンローダー
@@ -201,7 +220,8 @@ UltraToolBox/
     ├── capabilities/default.json   # 権限設定
     └── src/
         ├── main.rs                 # エントリーポイント
-        └── lib.rs                  # プラグイン登録（shell/fs/dialog/process/opener）
+        └── lib.rs                  # システム情報収集 / 電力監視バックグラウンドプロセス / プラグイン登録
+                                    # （sysinfo + powermetrics + pmset）
 ```
 
 ---

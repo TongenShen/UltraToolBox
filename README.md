@@ -103,10 +103,24 @@ UltraToolBox/
 
 一键打开系统终端，自动识别当前平台（macOS / Windows / Linux），支持 iTerm2（macOS）。
 
+### 🖥️ 系统信息（macOS 增强）
+
+全面的系统状态监控面板：
+
+| 功能 | 说明 |
+|------|------|
+| **CPU 信息** | 型号、核心数、频率、实时使用率、负载均值 |
+| **内存信息** | 总量、已用、可用、使用率进度条、交换空间、**内存压力**（macOS） |
+| **磁盘信息** | 各挂载点容量、已用空间、使用率进度条 |
+| **系统信息** | 主机名、操作系统、内核版本、运行时间、进程数 |
+| **实时功率监控** | macOS 专用，通过 powermetrics 后台进程持续采集 CPU/GPU/总功率，支持 root 密码保存 |
+
 ### ⚙️ 设置与个性化
 
 - **主题切换** — 深色/浅色模式一键切换
+- **多语言支持** — 简体中文 / English / 日本語 / 한국어
 - **二进制管理** — 检测 adb / iperf3 / aria2c / curl / ping 是否可用及版本信息
+- **Root 密码** — 保存 root 密码以启用 macOS 功率监控功能
 
 ---
 
@@ -116,12 +130,15 @@ UltraToolBox/
 |------|------|------|
 | **桌面框架** | [Tauri 2](https://v2.tauri.app/) | 跨平台桌面应用容器，体积小、性能高 |
 | **前端框架** | [Vue 3](https://vuejs.org/) + [TypeScript](https://www.typescriptlang.org/) | UI 层开发 |
-| **UI 组件库** | [Naive UI](https://www.naiveui.com/) | 高质量 Vue 3 组件 |
+| **UI** | [Naive UI](https://www.naiveui.com/) + [Lucide](https://lucide.dev/) | 高质量 Vue 3 组件 + 矢量图标 |
+| **国际化** | [vue-i18n](https://vue-i18n.intlify.dev/) | 4 语言支持（zh-CN / en-US / ja-JP / ko-KR） |
 | **状态管理** | [Pinia](https://pinia.vuejs.org/) | 全局状态管理 |
 | **路由管理** | [Vue Router](https://router.vuejs.org/) | 页面路由 |
 | **构建工具** | [Vite](https://vitejs.dev/) | 前端构建 |
-| **后端语言** | [Rust](https://www.rust-lang.org/) | 系统调用、插件扩展 |
+| **后端语言** | [Rust](https://www.rust-lang.org/) | 系统调用、插件扩展、功率监控 |
+| **系统信息** | [sysinfo](https://crates.io/crates/sysinfo) | CPU/内存/磁盘/进程/负载采集 |
 | **Tauri 插件** | shell / fs / dialog / process / opener | 命令行执行、文件操作、对话框 |
+| **macOS 功率** | powermetrics + pmset | 实时 CPU/GPU/总功率监控 |
 
 ---
 
@@ -175,20 +192,22 @@ UltraToolBox/
 ├── src/
 │   ├── main.ts                     # Vue 应用入口
 │   ├── App.vue                     # 主布局（侧边栏 + 内容区 + 状态栏）
-│   ├── router/index.ts             # 路由配置（7 个页面，懒加载）
+│   ├── router/index.ts             # 路由配置（8 个页面，懒加载）
 │   ├── stores/
-│   │   ├── app.ts                  # 应用状态（主题/侧边栏）
+│   │   ├── app.ts                  # 应用状态（主题/侧边栏/root密码/语言）
 │   │   ├── tools.ts                # 工具二进制配置
 │   │   └── process.ts              # 进程管理（启动/终止/状态/日志）
 │   ├── composables/
 │   │   ├── useCommand.ts           # 命令执行引擎（execute / spawn）
 │   │   └── useBinary.ts            # 二进制检测（检查/版本/状态）
+│   ├── locales/                    # 国际化翻译（zh-CN / en-US / ja-JP / ko-KR）
 │   ├── types/index.ts              # TypeScript 类型定义
 │   ├── components/
 │   │   ├── layout/AppSidebar.vue   # 可折叠侧边栏导航
 │   │   └── common/LogPanel.vue     # 统一日志面板（终端风格）
 │   └── views/
 │       ├── Home.vue                # 🏠 首页仪表盘
+│       ├── SystemInfoView.vue      # 🖥️ 系统信息（CPU/内存/磁盘/功率监控）
 │       ├── AdbView.vue             # 📱 ADB 调试桥
 │       ├── NetworkView.vue         # 🌐 网络工具
 │       ├── Aria2View.vue           # ⬇️ Aria2 下载器
@@ -201,7 +220,8 @@ UltraToolBox/
     ├── capabilities/default.json   # 权限配置
     └── src/
         ├── main.rs                 # 入口
-        └── lib.rs                  # 插件注册（shell/fs/dialog/process/opener）
+        └── lib.rs                  # 系统信息采集 / 功率监控后台进程 / 插件注册
+                                    # (sysinfo + powermetrics + pmset)
 ```
 
 ---

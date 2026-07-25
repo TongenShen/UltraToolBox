@@ -103,10 +103,24 @@ UltraToolBox/
 
 원클릭 시스템 터미널 실행, 플랫폼(macOS / Windows / Linux) 자동 감지, iTerm2(macOS) 지원.
 
+### 🖥️ 시스템 정보 (macOS 강화)
+
+포괄적인 시스템 상태 모니터링 패널:
+
+| 기능 | 설명 |
+|------|------|
+| **CPU 정보** | 모델, 코어 수, 주파수, 실시간 사용률, 로드 애버리지 |
+| **메모리 정보** | 총 용량, 사용 중, 사용 가능, 사용률 바, 스왑, **메모리 압력** (macOS) |
+| **디스크 정보** | 마운트 지점, 용량, 사용 공간, 사용률 바 |
+| **시스템 정보** | 호스트명, OS, 커널, 실행 시간, 프로세스 수 |
+| **실시간 전력 모니터링** | macOS 전용, 백그라운드 powermetrics 프로세스로 CPU/GPU/총 전력 지속 모니터링, root 비밀번호 저장 지원 |
+
 ### ⚙️ 설정 및 개인화
 
 - **테마 전환** — 다크/라이트 모드 전환
+- **다국어 지원** — 简体中文 / English / 日本語 / 한국어
 - **바이너리 관리** — adb / iperf3 / aria2c / curl / ping 사용 가능 여부 및 버전 정보 확인
+- **Root 비밀번호** — macOS 전력 모니터링을 위한 root 비밀번호 저장
 
 ---
 
@@ -116,12 +130,15 @@ UltraToolBox/
 |-------|------|------|
 | **데스크톱 프레임워크** | [Tauri 2](https://v2.tauri.app/) | 크로스 플랫폼 데스크톱 앱 컨테이너, 작은 용량·고성능 |
 | **프론트엔드** | [Vue 3](https://vuejs.org/) + [TypeScript](https://www.typescriptlang.org/) | UI 레이어 개발 |
-| **UI 컴포넌트** | [Naive UI](https://www.naiveui.com/) | 고품질 Vue 3 컴포넌트 |
+| **UI** | [Naive UI](https://www.naiveui.com/) + [Lucide](https://lucide.dev/) | Vue 3 컴포넌트 + 벡터 아이콘 |
+| **국제화** | [vue-i18n](https://vue-i18n.intlify.dev/) | 4개 언어 (zh-CN / en-US / ja-JP / ko-KR) |
 | **상태 관리** | [Pinia](https://pinia.vuejs.org/) | 전역 상태 관리 |
 | **라우터** | [Vue Router](https://router.vuejs.org/) | 페이지 라우팅 |
 | **빌드 도구** | [Vite](https://vitejs.dev/) | 프론트엔드 빌드 |
-| **백엔드 언어** | [Rust](https://www.rust-lang.org/) | 시스템 호출, 플러그인 확장 |
+| **백엔드 언어** | [Rust](https://www.rust-lang.org/) | 시스템 호출, 플러그인 확장, 전력 모니터링 |
+| **시스템 정보** | [sysinfo](https://crates.io/crates/sysinfo) | CPU/메모리/디스크/프로세스/부하 수집 |
 | **Tauri 플러그인** | shell / fs / dialog / process / opener | 명령 실행, 파일 작업, 대화상자 |
+| **macOS 전력** | powermetrics + pmset | 실시간 CPU/GPU/총 전력 모니터링 |
 
 ---
 
@@ -175,20 +192,22 @@ UltraToolBox/
 ├── src/
 │   ├── main.ts                     # Vue 앱 엔트리 포인트
 │   ├── App.vue                     # 메인 레이아웃 (사이드바 + 콘텐츠 + 상태 표시줄)
-│   ├── router/index.ts             # 라우트 설정 (7개 페이지, 레이지 로딩)
+│   ├── router/index.ts             # 라우트 설정 (8개 페이지, 레이지 로딩)
 │   ├── stores/
-│   │   ├── app.ts                  # 앱 상태 (테마/사이드바)
+│   │   ├── app.ts                  # 앱 상태 (테마/사이드바/root비밀번호/언어)
 │   │   ├── tools.ts                # 도구 바이너리 설정
 │   │   └── process.ts              # 프로세스 관리 (시작/종료/상태/로그)
 │   ├── composables/
 │   │   ├── useCommand.ts           # 명령 실행 엔진 (execute / spawn)
 │   │   └── useBinary.ts            # 바이너리 감지 (확인/버전/상태)
+│   ├── locales/                    # i18n 번역 (zh-CN / en-US / ja-JP / ko-KR)
 │   ├── types/index.ts              # TypeScript 타입 정의
 │   ├── components/
 │   │   ├── layout/AppSidebar.vue   # 접을 수 있는 사이드바 내비게이션
 │   │   └── common/LogPanel.vue     # 통합 로그 패널 (터미널 스타일)
 │   └── views/
 │       ├── Home.vue                # 🏠 대시보드
+│       ├── SystemInfoView.vue      # 🖥️ 시스템 정보 (CPU/메모리/디스크/전력 모니터링)
 │       ├── AdbView.vue             # 📱 ADB 디버그 브리지
 │       ├── NetworkView.vue         # 🌐 네트워크 도구
 │       ├── Aria2View.vue           # ⬇️ Aria2 다운로더
@@ -201,7 +220,8 @@ UltraToolBox/
     ├── capabilities/default.json   # 권한 설정
     └── src/
         ├── main.rs                 # 엔트리 포인트
-        └── lib.rs                  # 플러그인 등록 (shell/fs/dialog/process/opener)
+        └── lib.rs                  # 시스템 정보 수집 / 전력 모니터링 백그라운드 프로세스 / 플러그인 등록
+                                    # (sysinfo + powermetrics + pmset)
 ```
 
 ---
