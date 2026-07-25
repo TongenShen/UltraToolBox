@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { executeCommand } from '@/composables/useCommand'
+import { APP_VERSION } from '@/config/app'
 
-const appVersion = ref('v0.2.0')
+const appVersion = ref(`v${APP_VERSION}`)
 const tauriVersion = ref('')
 const osInfo = ref('')
 

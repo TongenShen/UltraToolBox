@@ -8,9 +8,10 @@ import { executeCommand } from '@/composables/useCommand'
 const { t, locale } = useI18n()
 const appStore = useAppStore()
 const { binaries, checkAllBinaries } = useBinary()
+import { APP_VERSION } from '@/config/app'
 
 const activeSection = ref<'general' | 'binaries'>('general')
-const appVersion = ref('v0.1.0')
+const appVersion = ref(`v${APP_VERSION}`)
 
 // ====== 主题 ======
 function setTheme(mode: ThemeMode) {

@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
+import { APP_VERSION } from '@/config/app'
 
 const route = useRoute()
 const appStore = useAppStore()
@@ -37,7 +38,7 @@ onMounted(() => {
       </main>
       <footer class="status-bar">
         <span class="status-indicator">{{ $t('app.status.idle') }}</span>
-        <span class="status-version">v0.1.0</span>
+        <span class="status-version">v{{ APP_VERSION }}</span>
       </footer>
     </div>
   </div>
