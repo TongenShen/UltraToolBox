@@ -132,6 +132,20 @@ onMounted(async () => {
         </div>
 
         <div class="panel-section">
+          <h3>{{ $t('settings.tooltip.title') }}</h3>
+          <div class="toggle-row">
+            <label class="toggle-label">{{ $t('settings.tooltip.enabled') }}</label>
+            <button
+              class="toggle-switch"
+              :class="{ active: appStore.showTooltips }"
+              @click="appStore.toggleTooltips()"
+            >
+              <span class="toggle-knob"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-section">
           <h3>{{ $t('settings.appInfo.title') }}</h3>
           <div class="info-list">
             <div class="info-row">
@@ -485,5 +499,53 @@ onMounted(async () => {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Toggle Switch */
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.toggle-label {
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  border: none;
+  background: var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.toggle-switch.active {
+  background: var(--accent);
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch.active .toggle-knob {
+  transform: translateX(20px);
 }
 </style>

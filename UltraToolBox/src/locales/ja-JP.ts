@@ -333,6 +333,8 @@ export default {
   'settings.theme.dark': '🌙 ダークモード',
   'settings.theme.light': '☀️ ライトモード',
   'settings.language.title': '🌐 言語',
+  'settings.tooltip.title': '💡 入力ヒント',
+  'settings.tooltip.enabled': '入力フィールドにホバーヒントを表示',
   'settings.appInfo.title': '📱 アプリ情報',
   'settings.appInfo.version': 'アプリバージョン',
   'settings.appInfo.theme': '現在のテーマ',

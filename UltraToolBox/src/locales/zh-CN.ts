@@ -344,6 +344,8 @@ export default {
   'settings.theme.dark': '🌙 深色模式',
   'settings.theme.light': '☀️ 浅色模式',
   'settings.language.title': '🌐 语言 / Language',
+  'settings.tooltip.title': '💡 输入提示',
+  'settings.tooltip.enabled': '显示输入框悬浮提示',
   'settings.appInfo.title': '📱 应用信息',
   'settings.appInfo.version': '应用版本',
   'settings.appInfo.theme': '当前主题',

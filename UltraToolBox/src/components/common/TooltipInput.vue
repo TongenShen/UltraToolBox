@@ -1,15 +1,19 @@
 <template>
   <div class="tooltip-field">
     <slot />
-    <span class="tooltip-icon">ⓘ</span>
-    <div class="tooltip-popup">{{ tooltip }}</div>
+    <span v-if="showTooltips" class="tooltip-icon">ⓘ</span>
+    <div v-if="showTooltips" class="tooltip-popup">{{ tooltip }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useAppStore } from '@/stores/app'
+
 defineProps<{
   tooltip: string
 }>()
+
+const { showTooltips } = useAppStore()
 </script>
 
 <style scoped>

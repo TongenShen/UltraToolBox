@@ -344,6 +344,8 @@ export default {
   'settings.theme.dark': '🌙 Dark Mode',
   'settings.theme.light': '☀️ Light Mode',
   'settings.language.title': '🌐 Language',
+  'settings.tooltip.title': '💡 Input Tooltips',
+  'settings.tooltip.enabled': 'Show hover tooltips on input fields',
   'settings.appInfo.title': '📱 App Info',
   'settings.appInfo.version': 'App Version',
   'settings.appInfo.theme': 'Current Theme',

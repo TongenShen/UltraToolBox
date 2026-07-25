@@ -333,6 +333,8 @@ export default {
   'settings.theme.dark': '🌙 다크 모드',
   'settings.theme.light': '☀️ 라이트 모드',
   'settings.language.title': '🌐 언어',
+  'settings.tooltip.title': '💡 입력 힌트',
+  'settings.tooltip.enabled': '입력 필드에 마우스 오버 툴팁 표시',
   'settings.appInfo.title': '📱 앱 정보',
   'settings.appInfo.version': '앱 버전',
   'settings.appInfo.theme': '현재 테마',

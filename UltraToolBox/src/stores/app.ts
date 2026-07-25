@@ -15,6 +15,9 @@ export const useAppStore = defineStore('app', () => {
   const savedSidebar = typeof localStorage !== 'undefined' ? localStorage.getItem('ultratoolbox-sidebar') : null
   const sidebarCollapsed = ref(savedSidebar === 'true')
 
+  const savedTooltips = typeof localStorage !== 'undefined' ? localStorage.getItem('ultratoolbox-tooltips') : null
+  const showTooltips = ref(savedTooltips !== 'false') // 默认开启
+
   const isDark = computed(() => theme.value === 'dark')
 
   function toggleTheme() {
@@ -37,14 +40,21 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('ultratoolbox-sidebar', String(sidebarCollapsed.value))
   }
 
+  function toggleTooltips() {
+    showTooltips.value = !showTooltips.value
+    localStorage.setItem('ultratoolbox-tooltips', String(showTooltips.value))
+  }
+
   return {
     theme,
     locale,
     sidebarCollapsed,
+    showTooltips,
     isDark,
     toggleTheme,
     setTheme,
     setLocale,
-    toggleSidebar
+    toggleSidebar,
+    toggleTooltips
   }
 })
