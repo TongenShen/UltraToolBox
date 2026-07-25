@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { executeCommand } from '@/composables/useCommand'
 import { APP_VERSION } from '@/config/app'
+import { Wrench, Crosshair, Monitor, Zap, Heart, BookOpen, Package, Compass, Cpu } from '@lucide/vue'
 
 const appVersion = ref(`v${APP_VERSION}`)
 const tauriVersion = ref('')
@@ -30,7 +31,7 @@ onMounted(async () => {
     <div class="about-container">
       <!-- Logo & Title -->
       <div class="about-hero">
-        <div class="about-logo">🔧</div>
+        <div class="about-logo"><Wrench :size="64" /></div>
         <h1 class="about-title">UltraToolBox</h1>
         <p class="about-version">{{ appVersion }}</p>
         <p class="about-desc">
@@ -41,21 +42,21 @@ onMounted(async () => {
       <!-- Info Cards -->
       <div class="about-cards">
         <div class="about-card">
-          <div class="card-icon">🎯</div>
+          <div class="card-icon"><Crosshair :size="20" /></div>
           <div class="card-text">
             <strong>{{ $t('about.positioning.title') }}</strong>
             {{ $t('about.positioning.desc') }}
           </div>
         </div>
         <div class="about-card">
-          <div class="card-icon">🛠️</div>
+          <div class="card-icon"><Wrench :size="20" /></div>
           <div class="card-text">
             <strong>{{ $t('about.builtin.title') }}</strong>
             {{ $t('about.builtin.desc') }}
           </div>
         </div>
         <div class="about-card">
-          <div class="card-icon">💻</div>
+          <div class="card-icon"><Monitor :size="20" /></div>
           <div class="card-text">
             <strong>{{ $t('about.platform.title') }}</strong>
             {{ osInfo }}
@@ -68,32 +69,32 @@ onMounted(async () => {
         <h3>{{ $t('about.techstack.title') }}</h3>
         <div class="tech-grid">
           <div class="tech-item">
-            <span class="tech-icon">⚡</span>
+            <span class="tech-icon"><Zap :size="20" /></span>
             <span class="tech-name">Tauri 2</span>
             <span class="tech-desc">{{ $t('about.tech.tauri') }}</span>
           </div>
           <div class="tech-item">
-            <span class="tech-icon">💚</span>
+            <span class="tech-icon"><Heart :size="20" /></span>
             <span class="tech-name">Vue 3</span>
             <span class="tech-desc">{{ $t('about.tech.vue') }}</span>
           </div>
           <div class="tech-item">
-            <span class="tech-icon">📘</span>
+            <span class="tech-icon"><BookOpen :size="20" /></span>
             <span class="tech-name">TypeScript</span>
             <span class="tech-desc">{{ $t('about.tech.typescript') }}</span>
           </div>
           <div class="tech-item">
-            <span class="tech-icon">🦀</span>
+            <span class="tech-icon"><Cpu :size="20" /></span>
             <span class="tech-name">Rust</span>
             <span class="tech-desc">{{ $t('about.tech.rust') }}</span>
           </div>
           <div class="tech-item">
-            <span class="tech-icon">📦</span>
+            <span class="tech-icon"><Package :size="20" /></span>
             <span class="tech-name">Pinia</span>
             <span class="tech-desc">{{ $t('about.tech.pinia') }}</span>
           </div>
           <div class="tech-item">
-            <span class="tech-icon">🧭</span>
+            <span class="tech-icon"><Compass :size="20" /></span>
             <span class="tech-name">Vue Router</span>
             <span class="tech-desc">{{ $t('about.tech.router') }}</span>
           </div>

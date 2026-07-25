@@ -9,6 +9,7 @@ const { t, locale } = useI18n()
 const appStore = useAppStore()
 const { binaries, checkAllBinaries } = useBinary()
 import { APP_VERSION } from '@/config/app'
+import { Loader, CheckCircle, XCircle } from '@lucide/vue'
 
 const activeSection = ref<'general' | 'binaries'>('general')
 const appVersion = ref(`v${APP_VERSION}`)
@@ -181,7 +182,9 @@ onMounted(async () => {
                   class="binary-status"
                   :class="binary.installed ? 'installed' : 'missing'"
                 >
-                  {{ binary.checking ? '⏳' : binary.installed ? '✅' : '❌' }}
+                  <Loader v-if="binary.checking" :size="14" class="spin" />
+                  <CheckCircle v-else-if="binary.installed" :size="14" />
+                  <XCircle v-else :size="14" />
                 </span>
               </div>
               <div class="binary-desc">{{ $t(binary.descriptionKey) }}</div>
@@ -547,5 +550,14 @@ onMounted(async () => {
 
 .toggle-switch.active .toggle-knob {
   transform: translateX(20px);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
 }
 </style>

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { executeCommand } from '@/composables/useCommand'
+import { Terminal, Apple, Monitor, Zap, Cpu } from '@lucide/vue'
 
 const { t } = useI18n()
 
@@ -16,7 +17,7 @@ const platformInfo = ref<PlatformInfo>({
   os: t('common.detecting'),
   shell: t('common.detecting'),
   defaultTerminal: t('common.detecting'),
-  icon: '💻'
+  icon: 'terminal'
 })
 
 const terminalOutput = ref<string[]>([])
@@ -32,21 +33,21 @@ async function detectPlatform() {
       os: 'macOS',
       shell: 'zsh (默认) / bash',
       defaultTerminal: 'Terminal.app',
-      icon: '🍎'
+      icon: 'apple'
     }
   } else if (platform.includes('win') || userAgent.includes('windows')) {
     platformInfo.value = {
       os: 'Windows',
       shell: 'PowerShell / CMD',
       defaultTerminal: 'Windows Terminal',
-      icon: '🪟'
+      icon: 'monitor'
     }
   } else if (platform.includes('linux') || userAgent.includes('linux')) {
     platformInfo.value = {
       os: 'Linux',
       shell: 'bash (默认) / zsh',
       defaultTerminal: 'GNOME Terminal',
-      icon: '🐧'
+      icon: 'terminal'
     }
   }
 }
@@ -111,7 +112,9 @@ onMounted(() => {
 
       <!-- Platform Info Card -->
       <div class="platform-card">
-        <div class="platform-icon">{{ platformInfo.icon }}</div>
+        <div class="platform-icon">
+          <component :is="platformInfo.icon === 'apple' ? Apple : platformInfo.icon === 'terminal' ? Terminal : Monitor" :size="32" />
+        </div>
         <div class="platform-details">
           <div class="platform-row">
             <span class="label">{{ $t('terminal.platform.os') }}</span>
@@ -133,7 +136,7 @@ onMounted(() => {
         <h3 class="section-title">{{ $t('terminal.quickLaunch.title') }}</h3>
         <div class="button-grid">
           <button class="action-btn primary" @click="openDefaultTerminal">
-            <span class="btn-icon">🖥️</span>
+            <span class="btn-icon"><Monitor :size="20" /></span>
             <span class="btn-label">{{ $t('terminal.launch.default') }}</span>
             <span class="btn-desc">{{ platformInfo.defaultTerminal }}</span>
           </button>
@@ -143,7 +146,7 @@ onMounted(() => {
             class="action-btn"
             @click="openITerm2"
           >
-            <span class="btn-icon">⬛</span>
+            <span class="btn-icon"><Terminal :size="20" /></span>
             <span class="btn-label">{{ $t('terminal.launch.iterm2') }}</span>
             <span class="btn-desc">{{ $t('terminal.launch.iterm2.hint') }}</span>
           </button>
@@ -153,7 +156,7 @@ onMounted(() => {
             class="action-btn"
             @click="openPowerShell"
           >
-            <span class="btn-icon">⚡</span>
+            <span class="btn-icon"><Zap :size="20" /></span>
             <span class="btn-label">{{ $t('terminal.launch.powershell') }}</span>
             <span class="btn-desc">{{ $t('terminal.launch.powershell.hint') }}</span>
           </button>

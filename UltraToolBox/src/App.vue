@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import { APP_VERSION } from '@/config/app'
+import { Menu } from '@lucide/vue'
 
 const route = useRoute()
 const appStore = useAppStore()
@@ -29,7 +30,7 @@ onMounted(() => {
     <div class="main-area">
       <header class="app-header">
         <button class="menu-btn" @click="toggleSidebar" :title="$t('app.toggleSidebar')">
-          <span class="menu-icon">☰</span>
+          <Menu :size="20" />
         </button>
         <h2 class="page-title">{{ pageTitle }}</h2>
       </header>

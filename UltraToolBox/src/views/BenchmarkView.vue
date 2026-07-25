@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import LogPanel from '@/components/common/LogPanel.vue'
 import { runBenchmark, getArchLabel, type BenchmarkResult, type BenchmarkEvent } from '@/composables/useBenchmark'
+import { Monitor, Rocket, Trash2, BarChart, Pin, CheckCircle, AlertTriangle, XCircle } from '@lucide/vue'
 
 const status = ref<'idle' | 'running' | 'completed' | 'error'>('idle')
 const logLines = ref<string[]>([])
@@ -40,7 +41,7 @@ async function startBenchmark() {
         }
         break
       case 'error':
-        addLog(`❌ ${event.data}`)
+        addLog(`[错误] ${event.data}`)
         break
       case 'done':
         status.value = event.data === 'completed' ? 'completed' : 'error'
@@ -71,7 +72,7 @@ function formatScore(val: number | null): string {
 <template>
   <div class="benchmark-view">
     <div class="view-header">
-      <h1 class="view-title">🖥️ CPU 基准测试</h1>
+      <h1 class="view-title"><Monitor :size="22" /> CPU 基准测试</h1>
       <p class="view-desc">基于 sysbench 的 CPU 性能基准测试，支持单核与多核跑分</p>
     </div>
 
@@ -82,13 +83,13 @@ function formatScore(val: number | null): string {
         :disabled="status === 'running'"
         @click="startBenchmark"
       >
-        🚀 开始跑分
+        <Rocket :size="16" /> 开始跑分
       </button>
       <button
         class="btn"
         @click="clearLogs"
       >
-        🗑️ 清空
+        <Trash2 :size="16" /> 清空
       </button>
     </div>
 
@@ -107,7 +108,7 @@ function formatScore(val: number | null): string {
 
     <!-- Results -->
     <div class="results-section" v-if="result">
-      <h2 class="results-title">📊 测试结果</h2>
+      <h2 class="results-title"><BarChart :size="18" /> 测试结果</h2>
 
       <!-- Native Scores -->
       <div class="result-card native">
@@ -123,8 +124,8 @@ function formatScore(val: number | null): string {
           <span class="result-unit">events/sec</span>
         </div>
         <div class="result-note">
-          <p>📌 系统信息：{{ getArchLabel(result.architecture) }} · {{ result.cpuCores }} 核 · {{ result.platform }}</p>
-          <p>✅ 说明：本次程序直接测出，无估算</p>
+          <p><Pin :size="14" /> 系统信息：{{ getArchLabel(result.architecture) }} · {{ result.cpuCores }} 核 · {{ result.platform }}</p>
+          <p><CheckCircle :size="14" /> 说明：本次程序直接测出，无估算</p>
         </div>
       </div>
 
@@ -149,7 +150,7 @@ function formatScore(val: number | null): string {
 
         <!-- Disclaimer -->
         <div class="disclaimer">
-          <p>⚠️ 估算值仅作横向参考，不同基准负载不同，结果存在明显误差，不具备严谨等效性。</p>
+          <p><AlertTriangle :size="14" /> 估算值仅作横向参考，不同基准负载不同，结果存在明显误差，不具备严谨等效性。</p>
           <p class="disclaimer-detail">
             本数值由 sysbench 跑分通过拟合公式推算得出。Sysbench、CPU-Z、SPEC 使用完全不同的运算负载，
             无法精准等价换算；跨 Intel/AMD/ARM 架构时误差会进一步扩大，仅适合粗略参考，不可作为严谨性能判定依据。

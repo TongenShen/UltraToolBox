@@ -6,6 +6,7 @@ import { checkCommandExists } from '@/composables/useCommand'
 import LogPanel from '@/components/common/LogPanel.vue'
 import TooltipInput from '@/components/common/TooltipInput.vue'
 import { useProcessStore } from '@/stores/process'
+import { Smartphone, Battery, Camera, Video, Square, Info, RefreshCw, Wrench, ArrowLeft, Loader, Folder, File, Download, XCircle, Lock, HelpCircle } from '@lucide/vue'
 
 const { t } = useI18n()
 const processStore = useProcessStore()
@@ -152,11 +153,11 @@ async function disconnectDevice(deviceId: string) {
   }
 }
 
-function getDeviceIcon(device: AdbDevice): string {
-  if (device.status === 'device') return '📱'
-  if (device.status === 'offline') return '📴'
-  if (device.status === 'unauthorized') return '🔒'
-  return '❓'
+function getDeviceIcon(device: AdbDevice): any {
+  if (device.status === 'device') return Smartphone
+  if (device.status === 'offline') return XCircle
+  if (device.status === 'unauthorized') return Lock
+  return HelpCircle
 }
 
 // ====== 快捷操作 ======
@@ -545,7 +546,7 @@ onUnmounted(() => {
             </div>
 
             <div v-for="device in devices" :key="device.id" class="device-card">
-              <div class="device-icon">{{ getDeviceIcon(device) }}</div>
+              <div class="device-icon"><component :is="getDeviceIcon(device)" :size="24" /></div>
               <div class="device-info">
                 <div class="device-id">{{ device.id }}</div>
                 <div class="device-meta">
@@ -554,7 +555,7 @@ onUnmounted(() => {
                   </span>
                   <span v-if="device.model" class="device-model">{{ device.model }}</span>
                   <span v-if="device.androidVersion" class="device-android">Android {{ device.androidVersion }}</span>
-                  <span v-if="device.battery !== undefined" class="device-battery">🔋 {{ device.battery }}%</span>
+                  <span v-if="device.battery !== undefined" class="device-battery"><Battery :size="14" /> {{ device.battery }}%</span>
                 </div>
               </div>
               <div class="device-actions">
@@ -599,43 +600,43 @@ onUnmounted(() => {
             <h3>{{ $t('adb.quick.title') }}</h3>
             <div class="quick-grid">
               <button class="quick-btn" @click="takeScreenshot" :disabled="screenshotLoading || !getSelectedDevice()">
-                <span class="quick-icon">📸</span>
+                <span class="quick-icon"><Camera :size="20" /></span>
                 <span class="quick-label">{{ $t('adb.quick.screenshot') }}</span>
                 <span class="quick-desc">{{ $t('adb.quick.screenshot.desc') }}</span>
               </button>
 
               <button class="quick-btn" @click="startScreenrecord" :disabled="logStatus === 'running' || !getSelectedDevice()">
-                <span class="quick-icon">🎬</span>
+                <span class="quick-icon"><Video :size="20" /></span>
                 <span class="quick-label">{{ $t('adb.quick.screenrecord') }}</span>
                 <span class="quick-desc">{{ $t('adb.quick.screenrecord.desc') }}</span>
               </button>
 
               <button class="quick-btn danger" @click="stopScreenrecord" :disabled="logStatus !== 'running'">
-                <span class="quick-icon">⏹️</span>
+                <span class="quick-icon"><Square :size="20" /></span>
                 <span class="quick-label">{{ $t('adb.quick.stopScreenrecord') }}</span>
                 <span class="quick-desc">{{ $t('adb.quick.stopScreenrecord.desc') }}</span>
               </button>
 
               <button class="quick-btn" @click="getDeviceInfo" :disabled="!getSelectedDevice()">
-                <span class="quick-icon">ℹ️</span>
+                <span class="quick-icon"><Info :size="20" /></span>
                 <span class="quick-label">{{ $t('adb.quick.deviceInfo') }}</span>
                 <span class="quick-desc">{{ $t('adb.quick.deviceInfo.desc') }}</span>
               </button>
 
               <button class="quick-btn" @click="rebootDevice('normal')" :disabled="!getSelectedDevice()">
-                <span class="quick-icon">🔄</span>
+                <span class="quick-icon"><RefreshCw :size="20" /></span>
                 <span class="quick-label">{{ $t('adb.quick.reboot') }}</span>
                 <span class="quick-desc">{{ $t('adb.quick.reboot.desc') }}</span>
               </button>
 
               <button class="quick-btn warning" @click="rebootDevice('bootloader')" :disabled="!getSelectedDevice()">
-                <span class="quick-icon">🔧</span>
+                <span class="quick-icon"><Wrench :size="20" /></span>
                 <span class="quick-label">{{ $t('adb.quick.rebootBootloader') }}</span>
                 <span class="quick-desc">{{ $t('adb.quick.rebootBootloader.desc') }}</span>
               </button>
 
               <button class="quick-btn warning" @click="rebootDevice('recovery')" :disabled="!getSelectedDevice()">
-                <span class="quick-icon">🛠️</span>
+                <span class="quick-icon"><Wrench :size="20" /></span>
                 <span class="quick-label">{{ $t('adb.quick.rebootRecovery') }}</span>
                 <span class="quick-desc">{{ $t('adb.quick.rebootRecovery.desc') }}</span>
               </button>
@@ -751,10 +752,11 @@ onUnmounted(() => {
               </div>
             </div>
             <div class="file-path-bar">
-              <button class="path-btn" @click="goBack" :disabled="filePath === '/' || filePath === '/sdcard'">⬅️</button>
+              <button class="path-btn" @click="goBack" :disabled="filePath === '/' || filePath === '/sdcard'"><ArrowLeft :size="16" /></button>
               <span class="current-path">{{ filePath }}</span>
               <button class="btn btn-sm" @click="listFiles(filePath)" :disabled="fileLoading">
-                {{ fileLoading ? '⏳' : '🔄' }}
+                <Loader v-if="fileLoading" :size="14" />
+                <RefreshCw v-else :size="14" />
               </button>
             </div>
             <div class="file-grid">
@@ -768,7 +770,7 @@ onUnmounted(() => {
                 :class="{ 'is-dir': item.isDir }"
                 @dblclick="item.isDir && navigateToDir(item.name)"
               >
-                <span class="file-icon">{{ item.isDir ? '📁' : '📄' }}</span>
+                <span class="file-icon"><component :is="item.isDir ? Folder : File" :size="18" /></span>
                 <div class="file-info">
                   <span class="file-name">{{ item.name }}</span>
                   <span class="file-meta" v-if="!item.isDir">{{ item.size }} B</span>
@@ -778,7 +780,7 @@ onUnmounted(() => {
                   class="btn btn-sm"
                   @click.stop="pullFile(item.name)"
                   :title="$t('adb.files.pull')"
-                >⬇️</button>
+                ><Download :size="14" /></button>
               </div>
             </div>
           </div>

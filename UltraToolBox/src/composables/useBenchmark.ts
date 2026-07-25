@@ -162,52 +162,52 @@ export async function runBenchmark(
 
   try {
     // Phase 1: 检测系统
-    callback({ type: 'phase', data: '🔍 检测系统信息...' })
+    callback({ type: 'phase', data: '检测系统信息...' })
     const { arch, platform, cores } = await detectSystem()
     callback({ type: 'log', data: `平台: ${platform} | 架构: ${arch} | CPU 核心数: ${cores}` })
 
     // Phase 2: 检查 sysbench
-    callback({ type: 'phase', data: '🔎 检查 sysbench...' })
+    callback({ type: 'phase', data: '检查 sysbench...' })
     const sbCheck = await checkSysbench()
     if (!sbCheck.available) {
-      callback({ type: 'error', data: '❌ 未找到 sysbench。请通过包管理器安装或放置 sidecar 二进制。' })
+      callback({ type: 'error', data: '未找到 sysbench。请通过包管理器安装或放置 sidecar 二进制。' })
       callback({ type: 'done', data: 'error' })
       return null
     }
     sysbenchMethod = sbCheck.method as 'sidecar' | 'system'
-    callback({ type: 'log', data: `✅ sysbench 可用 (${sbCheck.method === 'sidecar' ? '内置 sidecar' : '系统 PATH'})` })
+    callback({ type: 'log', data: `sysbench 可用 (${sbCheck.method === 'sidecar' ? '内置 sidecar' : '系统 PATH'})` })
 
     // Phase 3: 热身
-    callback({ type: 'phase', data: '🔥 CPU 热身中 (5 秒)...' })
+    callback({ type: 'phase', data: 'CPU 热身中 (5 秒)...' })
     callback({ type: 'progress', data: '热身中', progress: { current: 0, total: 3, phase: 'warmup' } })
     const warmupCmd = sysbenchMethod === 'sidecar'
       ? `cpu --threads=1 --cpu-max-prime=20000 --time=5 run`
       : `sysbench cpu --threads=1 --cpu-max-prime=20000 --time=5 run`
     await runSysbenchTest(warmupCmd, sysbenchMethod, 5, callback)
-    callback({ type: 'log', data: '✅ 热身完成' })
+    callback({ type: 'log', data: '热身完成' })
 
     // Phase 4: 单核测试
-    callback({ type: 'phase', data: '🧪 单核测试 (15 秒)...' })
+    callback({ type: 'phase', data: '单核测试 (15 秒)...' })
     callback({ type: 'progress', data: '单核测试', progress: { current: 1, total: 3, phase: 'single' } })
     const singleCmd = sysbenchMethod === 'sidecar'
       ? `cpu --threads=1 --cpu-max-prime=20000 --time=15 run`
       : `sysbench cpu --threads=1 --cpu-max-prime=20000 --time=15 run`
     const singleOutput = await runSysbenchTest(singleCmd, sysbenchMethod, 15, callback)
     sysbenchSingle = parseSysbenchOutput(singleOutput)
-    callback({ type: 'log', data: `✅ 单核: ${sysbenchSingle?.toFixed(2) ?? 'N/A'} events/sec` })
+    callback({ type: 'log', data: `单核: ${sysbenchSingle?.toFixed(2) ?? 'N/A'} events/sec` })
 
     // Phase 5: 多核测试
-    callback({ type: 'phase', data: `🧪 多核测试 (${cores} 线程, 15 秒)...` })
+    callback({ type: 'phase', data: `多核测试 (${cores} 线程, 15 秒)...` })
     callback({ type: 'progress', data: '多核测试', progress: { current: 2, total: 3, phase: 'multi' } })
     const multiCmd = sysbenchMethod === 'sidecar'
       ? `cpu --threads=${cores} --cpu-max-prime=20000 --time=15 run`
       : `sysbench cpu --threads=${cores} --cpu-max-prime=20000 --time=15 run`
     const multiOutput = await runSysbenchTest(multiCmd, sysbenchMethod, 15, callback)
     sysbenchMulti = parseSysbenchOutput(multiOutput)
-    callback({ type: 'log', data: `✅ 多核: ${sysbenchMulti?.toFixed(2) ?? 'N/A'} events/sec` })
+    callback({ type: 'log', data: `多核: ${sysbenchMulti?.toFixed(2) ?? 'N/A'} events/sec` })
 
     // Phase 6: 计算结果
-    callback({ type: 'phase', data: '📊 计算结果中...' })
+    callback({ type: 'phase', data: '计算结果中...' })
     callback({ type: 'progress', data: '完成', progress: { current: 3, total: 3, phase: 'done' } })
 
     const cpuZSingle = sysbenchSingle !== null ? estimateCpuZ(sysbenchSingle, arch, false) : null
@@ -220,12 +220,12 @@ export async function runBenchmark(
       architecture: arch, platform, cpuCores: cores
     }
 
-    callback({ type: 'log', data: '✅ 基准测试全部完成！' })
+    callback({ type: 'log', data: '基准测试全部完成！' })
     callback({ type: 'done', data: 'completed' })
     return result
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error)
-    callback({ type: 'error', data: `❌ 测试出错: ${msg}` })
+    callback({ type: 'error', data: `测试出错: ${msg}` })
     callback({ type: 'done', data: 'error' })
     return null
   }

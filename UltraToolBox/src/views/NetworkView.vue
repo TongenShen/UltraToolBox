@@ -6,6 +6,7 @@ import { checkCommandExists } from '@/composables/useCommand'
 import { useNetworkInfo } from '@/composables/useNetworkInfo'
 import LogPanel from '@/components/common/LogPanel.vue'
 import TooltipInput from '@/components/common/TooltipInput.vue'
+import { Loader, AlertTriangle, Wifi, Rocket, Link, Download, Upload } from '@lucide/vue'
 
 const { t } = useI18n()
 
@@ -199,10 +200,10 @@ onMounted(async () => {
       <!-- Network Info Card -->
       <div class="netinfo-card">
         <div class="netinfo-loading" v-if="netInfoLoading">
-          <span class="netinfo-spinner">⏳</span> {{ $t('common.loading') }}
+          <Loader :size="14" class="netinfo-spinner" /> {{ $t('common.loading') }}
         </div>
         <div class="netinfo-error" v-else-if="netInfoError">
-          ⚠️ {{ netInfoError }}
+          <AlertTriangle :size="14" /> {{ netInfoError }}
         </div>
         <div class="netinfo-grid" v-else>
           <div class="netinfo-item">
@@ -243,7 +244,7 @@ onMounted(async () => {
           :class="{ active: activeTab === 'ping' }"
           @click="switchTab('ping')"
         >
-          <span class="tab-icon">📶</span>
+          <span class="tab-icon"><Wifi :size="16" /></span>
           <span class="tab-label">{{ $t('network.tab.ping') }}</span>
           <span class="tab-badge" :class="toolsAvailable.ping ? 'ok' : 'no'">
             {{ toolsAvailable.ping ? $t('common.ready') : $t('common.unavailable') }}
@@ -254,7 +255,7 @@ onMounted(async () => {
           :class="{ active: activeTab === 'iperf3' }"
           @click="switchTab('iperf3')"
         >
-          <span class="tab-icon">🚀</span>
+          <span class="tab-icon"><Rocket :size="16" /></span>
           <span class="tab-label">{{ $t('network.tab.iperf3') }}</span>
           <span class="tab-badge" :class="toolsAvailable.iperf3 ? 'ok' : 'no'">
             {{ toolsAvailable.iperf3 ? $t('common.ready') : $t('common.unavailable') }}
@@ -265,7 +266,7 @@ onMounted(async () => {
           :class="{ active: activeTab === 'curl' }"
           @click="switchTab('curl')"
         >
-          <span class="tab-icon">🔗</span>
+          <span class="tab-icon"><Link :size="16" /></span>
           <span class="tab-label">{{ $t('network.tab.curl') }}</span>
           <span class="tab-badge" :class="toolsAvailable.curl ? 'ok' : 'no'">
             {{ toolsAvailable.curl ? $t('common.ready') : $t('common.unavailable') }}
@@ -323,12 +324,12 @@ onMounted(async () => {
                 class="mode-btn"
                 :class="{ active: iperfMode === 'client' }"
                 @click="iperfMode = 'client'"
-              >📤 {{ $t('network.iperf3.mode.client') }}</button>
+              ><Upload :size="14" /> {{ $t('network.iperf3.mode.client') }}</button>
               <button
                 class="mode-btn"
                 :class="{ active: iperfMode === 'server' }"
                 @click="iperfMode = 'server'"
-              >📥 {{ $t('network.iperf3.mode.server') }}</button>
+              ><Download :size="14" /> {{ $t('network.iperf3.mode.server') }}</button>
             </div>
 
             <div v-if="iperfMode === 'client'" class="form-group">
@@ -411,7 +412,7 @@ onMounted(async () => {
             </div>
 
             <div class="hint" v-if="!toolsAvailable.iperf3">
-              ⚠️ iperf3 未安装。安装方式：<code>brew install iperf3</code> (macOS) 或
+              <AlertTriangle :size="14" /> iperf3 未安装。安装方式：<code>brew install iperf3</code> (macOS) 或
               <code>sudo apt install iperf3</code> (Linux)
             </div>
           </div>

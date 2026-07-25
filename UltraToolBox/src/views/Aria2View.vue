@@ -5,6 +5,7 @@ import { executeCommand, spawnCommand, type CommandEvent } from '@/composables/u
 import { checkCommandExists } from '@/composables/useCommand'
 import LogPanel from '@/components/common/LogPanel.vue'
 import TooltipInput from '@/components/common/TooltipInput.vue'
+import { X, AlertTriangle } from '@lucide/vue'
 
 const { t } = useI18n()
 
@@ -354,7 +355,7 @@ onUnmounted(() => {
                   <span v-if="task.progress" class="task-progress">{{ task.progress }}</span>
                 </div>
               </div>
-              <button class="btn btn-sm btn-danger" @click="removeTask(index)">✕</button>
+              <button class="btn btn-sm btn-danger" @click="removeTask(index)"><X :size="14" /></button>
             </div>
           </div>
         </div>
@@ -493,7 +494,7 @@ onUnmounted(() => {
 
       <!-- Aria2 not available -->
       <div v-if="!aria2Checking && !aria2Available" class="not-available">
-        <div class="not-available-icon">⚠️</div>
+        <div class="not-available-icon"><AlertTriangle :size="32" /></div>
         <h3>{{ $t('aria2.notInstalled.title') }}</h3>
         <p>{{ $t('aria2.notInstalled.help') }}</p>
         <div class="install-cmd">brew install aria2</div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, computed } from 'vue'
+import { ClipboardCopy, Download, Trash2 } from '@lucide/vue'
 
 const props = defineProps<{
   lines: string[]
@@ -104,13 +105,13 @@ function formatTimestamp(): string {
           {{ $t('log.autoScroll') }}
         </label>
         <button class="log-btn" @click="copyContent" :title="$t('log.copy')">
-          📋
+          <ClipboardCopy :size="14" />
         </button>
         <button class="log-btn" @click="scrollToBottom" :title="$t('log.scrollToBottom')">
-          ⬇️
+          <Download :size="14" />
         </button>
         <button class="log-btn" @click="$emit('clear')" :title="$t('log.clear')">
-          🗑️
+          <Trash2 :size="14" />
         </button>
       </div>
     </div>

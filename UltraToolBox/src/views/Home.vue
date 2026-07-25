@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { Smartphone, Globe, Download, Terminal } from '@lucide/vue'
 
 const router = useRouter()
 
 const quickTools = [
-  { path: '/adb', titleKey: 'home.tool.adb', icon: '📱', descKey: 'home.tool.adb.desc' },
-  { path: '/network', titleKey: 'home.tool.network', icon: '🌐', descKey: 'home.tool.network.desc' },
-  { path: '/aria2', titleKey: 'home.tool.aria2', icon: '⬇️', descKey: 'home.tool.aria2.desc' },
-  { path: '/terminal', titleKey: 'home.tool.terminal', icon: '💻', descKey: 'home.tool.terminal.desc' },
+  { path: '/adb', titleKey: 'home.tool.adb', icon: Smartphone, descKey: 'home.tool.adb.desc' },
+  { path: '/network', titleKey: 'home.tool.network', icon: Globe, descKey: 'home.tool.network.desc' },
+  { path: '/aria2', titleKey: 'home.tool.aria2', icon: Download, descKey: 'home.tool.aria2.desc' },
+  { path: '/terminal', titleKey: 'home.tool.terminal', icon: Terminal, descKey: 'home.tool.terminal.desc' },
 ]
 </script>
 
@@ -25,7 +26,9 @@ const quickTools = [
         class="tool-card"
         @click="router.push(tool.path)"
       >
-        <span class="tool-icon">{{ tool.icon }}</span>
+        <span class="tool-icon">
+          <component :is="tool.icon" :size="32" stroke-width="1.5" />
+        </span>
         <div class="tool-info">
           <h3 class="tool-name">{{ $t(tool.titleKey) }}</h3>
           <p class="tool-desc">{{ $t(tool.descKey) }}</p>

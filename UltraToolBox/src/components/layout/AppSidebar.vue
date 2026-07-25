@@ -2,6 +2,12 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToolsStore, type ToolItem } from '@/stores/tools'
+import {
+  Home, Smartphone, Globe, Download, Monitor, Terminal,
+  Apple, Monitor as Window, Wrench,
+  Settings, Info,
+  ChevronDown, ChevronRight, X, Pin, PinOff, Search
+} from '@lucide/vue'
 
 defineProps<{
   collapsed: boolean
@@ -15,6 +21,21 @@ const route = useRoute()
 const router = useRouter()
 const toolsStore = useToolsStore()
 
+// 图标映射
+const iconMap: Record<string, any> = {
+  home: Home,
+  smartphone: Smartphone,
+  globe: Globe,
+  download: Download,
+  monitor: Monitor,
+  terminal: Terminal,
+  apple: Apple,
+  window: Window,
+  wrench: Wrench,
+  settings: Settings,
+  info: Info,
+}
+
 // 搜索
 const searchQuery = ref('')
 
@@ -26,23 +47,23 @@ const systemExpanded = ref(false)
 
 // 导航项定义
 const generalTools: ToolItem[] = [
-  { path: '/', titleKey: 'nav.home', icon: '🏠' },
-  { path: '/adb', titleKey: 'nav.adb', icon: '📱' },
-  { path: '/network', titleKey: 'nav.network', icon: '🌐' },
-  { path: '/aria2', titleKey: 'nav.aria2', icon: '⬇️' },
-  { path: '/benchmark', titleKey: 'nav.benchmark', icon: '🖥️' },
-  { path: '/terminal', titleKey: 'nav.terminal', icon: '💻' },
+  { path: '/', titleKey: 'nav.home', icon: 'home' },
+  { path: '/adb', titleKey: 'nav.adb', icon: 'smartphone' },
+  { path: '/network', titleKey: 'nav.network', icon: 'globe' },
+  { path: '/aria2', titleKey: 'nav.aria2', icon: 'download' },
+  { path: '/benchmark', titleKey: 'nav.benchmark', icon: 'monitor' },
+  { path: '/terminal', titleKey: 'nav.terminal', icon: 'terminal' },
 ]
 
 const systemTools: ToolItem[] = [
-  { path: '/system/macos', titleKey: 'sidebar.system.macos', icon: '🍎' },
-  { path: '/system/windows', titleKey: 'sidebar.system.windows', icon: '🪟' },
-  { path: '/system/linux', titleKey: 'sidebar.system.linux', icon: '🐧' },
+  { path: '/system/macos', titleKey: 'sidebar.system.macos', icon: 'apple' },
+  { path: '/system/windows', titleKey: 'sidebar.system.windows', icon: 'window' },
+  { path: '/system/linux', titleKey: 'sidebar.system.linux', icon: 'terminal' },
 ]
 
 const footerItems: ToolItem[] = [
-  { path: '/settings', titleKey: 'nav.settings', icon: '⚙️' },
-  { path: '/about', titleKey: 'nav.about', icon: 'ℹ️' },
+  { path: '/settings', titleKey: 'nav.settings', icon: 'settings' },
+  { path: '/about', titleKey: 'nav.about', icon: 'info' },
 ]
 
 // 根据搜索过滤通用工具
@@ -87,11 +108,11 @@ function handleSystemClick(item: ToolItem) {
     <!-- Header -->
     <div class="sidebar-header">
       <div class="logo" v-if="!collapsed">
-        <span class="logo-icon">🔧</span>
+        <Wrench :size="20" />
         <span class="logo-text">UltraToolBox</span>
       </div>
       <div class="logo logo-small" v-else>
-        <span class="logo-icon">🔧</span>
+        <Wrench :size="20" />
       </div>
     </div>
 
@@ -109,7 +130,7 @@ function handleSystemClick(item: ToolItem) {
           class="search-clear"
           @click="searchQuery = ''"
         >
-          ✕
+          <X :size="14" />
         </button>
       </div>
     </div>
@@ -121,7 +142,8 @@ function handleSystemClick(item: ToolItem) {
         <!-- Section 1: 通用工具 -->
         <div class="nav-section">
           <div class="section-header collapsible" @click="generalExpanded = !generalExpanded">
-            <span class="collapse-arrow">{{ generalExpanded ? '▼' : '▶' }}</span>
+            <ChevronDown v-if="generalExpanded" :size="14" />
+            <ChevronRight v-else :size="14" />
             <span class="section-title">{{ $t('sidebar.general') }}</span>
           </div>
           <div class="section-items" v-if="generalExpanded || searchQuery.trim() !== ''">
@@ -141,7 +163,8 @@ function handleSystemClick(item: ToolItem) {
                 @click.stop="togglePin(item)"
                 :title="isPinned(item) ? $t('sidebar.unpin') : $t('sidebar.pin')"
               >
-                {{ isPinned(item) ? '📌' : '📍' }}
+                <Pin v-if="isPinned(item)" :size="14" />
+                <PinOff v-else :size="14" />
               </span>
             </button>
             <div v-if="filteredGeneralTools.length === 0" class="search-empty">
@@ -153,7 +176,8 @@ function handleSystemClick(item: ToolItem) {
         <!-- Section 1: 系统工具 -->
         <div class="nav-section">
           <div class="section-header collapsible" @click="systemExpanded = !systemExpanded">
-            <span class="collapse-arrow">{{ systemExpanded ? '▼' : '▶' }}</span>
+            <ChevronDown v-if="systemExpanded" :size="14" />
+            <ChevronRight v-else :size="14" />
             <span class="section-title">{{ $t('sidebar.system') }}</span>
           </div>
           <div class="section-items" v-if="systemExpanded">
@@ -165,7 +189,9 @@ function handleSystemClick(item: ToolItem) {
               @click="handleSystemClick(item)"
               :title="$t(item.titleKey)"
             >
-              <span class="nav-icon">{{ item.icon }}</span>
+              <span class="nav-icon">
+                <component :is="iconMap[item.icon]" :size="18" />
+              </span>
               <span class="nav-label">{{ $t(item.titleKey) }}</span>
             </button>
           </div>
@@ -189,13 +215,15 @@ function handleSystemClick(item: ToolItem) {
                 @click="navigate(item)"
                 :title="$t(item.titleKey)"
               >
-                <span class="nav-icon">{{ item.icon }}</span>
+                <span class="nav-icon">
+                  <component :is="iconMap[item.icon]" :size="18" />
+                </span>
                 <span class="nav-label">{{ $t(item.titleKey) }}</span>
                 <span
                   class="pin-btn pinned"
                   @click.stop="togglePin(item)"
                   :title="$t('sidebar.unpin')"
-                >✕</span>
+                ><X :size="12" /></span>
               </button>
             </template>
             <div v-else class="pinned-empty">
@@ -216,7 +244,9 @@ function handleSystemClick(item: ToolItem) {
             @click="navigate(item)"
             :title="$t(item.titleKey)"
           >
-            <span class="collapsed-pin-icon">{{ item.icon }}</span>
+            <span class="collapsed-pin-icon">
+            <component :is="iconMap[item.icon]" :size="20" />
+          </span>
           </button>
         </div>
       </template>
@@ -232,7 +262,9 @@ function handleSystemClick(item: ToolItem) {
         @click="navigate(item)"
         :title="$t(item.titleKey)"
       >
-        <span class="nav-icon">{{ item.icon }}</span>
+        <span class="nav-icon">
+          <component :is="iconMap[item.icon]" :size="18" />
+        </span>
         <span class="nav-label" v-if="!collapsed">{{ $t(item.titleKey) }}</span>
       </button>
     </div>
