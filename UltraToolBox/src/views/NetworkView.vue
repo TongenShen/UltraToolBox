@@ -39,6 +39,9 @@ async function runPing() {
     (event: CommandEvent) => {
       if (event.type === 'stdout' || event.type === 'stderr') {
         logLines.value.push(event.data.trimEnd())
+      } else if (event.type === 'done' || event.type === 'error') {
+        pinging.value = false
+        logStatus.value = 'completed'
       }
     }
   )
@@ -77,6 +80,9 @@ async function runIperf() {
   const { kill } = await spawnCommand(cmd, (event: CommandEvent) => {
     if (event.type === 'stdout' || event.type === 'stderr') {
       logLines.value.push(event.data.trimEnd())
+    } else if (event.type === 'done' || event.type === 'error') {
+      iperfRunning.value = false
+      logStatus.value = 'completed'
     }
   })
   runningKill = kill
@@ -134,6 +140,9 @@ async function runCurl() {
   const { kill } = await spawnCommand(cmd + ' 2>&1', (event: CommandEvent) => {
     if (event.type === 'stdout' || event.type === 'stderr') {
       logLines.value.push(event.data.trimEnd())
+    } else if (event.type === 'done' || event.type === 'error') {
+      curlRunning.value = false
+      logStatus.value = 'completed'
     }
   })
   runningKill = kill

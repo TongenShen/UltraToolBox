@@ -64,13 +64,13 @@ export async function spawnCommand(
 
   let killed = false
 
-  commandObj.on('data', (data: string) => {
+  commandObj.stdout.on('data', (data: string) => {
     if (!killed) {
       callback({ type: 'stdout', data })
     }
   })
 
-  commandObj.stderr?.on('data', (data: string) => {
+  commandObj.stderr.on('data', (data: string) => {
     if (!killed) {
       callback({ type: 'stderr', data })
     }
@@ -85,8 +85,8 @@ export async function spawnCommand(
   // Spawn the command
   const child = await commandObj.spawn()
 
-  // Wait for the process to complete
-  child.on('close', () => {
+  // The close event is on Command, not Child, in Tauri 2
+  commandObj.on('close', () => {
     if (!killed) {
       callback({ type: 'done', data: '' })
     }

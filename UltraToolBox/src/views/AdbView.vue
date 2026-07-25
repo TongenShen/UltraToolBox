@@ -210,6 +210,9 @@ async function startScreenrecord() {
       if (event.type === 'stdout' || event.type === 'stderr') {
         logLines.value.push(event.data)
       }
+      if (event.type === 'done' || event.type === 'error') {
+        logStatus.value = 'idle'
+      }
     }
   )
 
@@ -414,6 +417,9 @@ async function startLogcat() {
       (event: CommandEvent) => {
         if (event.type === 'stdout' || event.type === 'stderr') {
           logLines.value.push(event.data)
+        }
+        if (event.type === 'done' || event.type === 'error') {
+          logStatus.value = 'idle'
         }
       }
     )

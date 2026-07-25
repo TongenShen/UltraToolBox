@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { executeCommand } from '@/composables/useCommand'
 
-const appVersion = ref('v0.1.0')
+const appVersion = ref('v0.2.0')
 const tauriVersion = ref('')
 const osInfo = ref('')
 

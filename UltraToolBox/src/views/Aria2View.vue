@@ -88,9 +88,14 @@ async function startServer() {
         logLines.value.push(line)
         serverLog.value.push(line)
       }
+      if (event.type === 'done' || event.type === 'error') {
+        aria2Running.value = false
+        serverStarted.value = false
+        logStatus.value = 'idle'
+      }
     })
 
-    aria2Process = kill
+    aria2Process = { kill }
     aria2Running.value = true
     serverStarted.value = true
     logStatus.value = 'running'
@@ -149,7 +154,7 @@ async function startDownload() {
     --console-log-level=notice \
     "${url}" 2>&1`
 
-  const { kill } = await spawnCommand(cmd, (event: CommandEvent) => {
+  await spawnCommand(cmd, (event: CommandEvent) => {
     const line = event.data.trimEnd()
     logLines.value.push(line)
 
@@ -167,11 +172,12 @@ async function startDownload() {
         currentTask.errorMsg = line
       }
     }
-  })
 
-  // Wait for download to complete
-  isDownloading.value = false
-  downloadUrl.value = ''
+    if (event.type === 'done' || event.type === 'error') {
+      isDownloading.value = false
+      downloadUrl.value = ''
+    }
+  })
 }
 
 // ====== BT/磁力下载 ======
@@ -209,14 +215,16 @@ async function startBtDownload() {
       "${link}" 2>&1`
   }
 
-  const { kill } = await spawnCommand(cmd, (event: CommandEvent) => {
+  await spawnCommand(cmd, (event: CommandEvent) => {
     const line = event.data.trimEnd()
     logLines.value.push(line)
-  })
 
-  btDownloading.value = false
-  magnetLink.value = ''
-  torrentPath.value = ''
+    if (event.type === 'done' || event.type === 'error') {
+      btDownloading.value = false
+      magnetLink.value = ''
+      torrentPath.value = ''
+    }
+  })
 }
 
 function clearLog() {
