@@ -47,19 +47,31 @@ export function useNetworkInfo() {
   }
 
   async function getActiveInterface(): Promise<string> {
-    // 先用默认路由获取接口
-    const result = await executeCommand("route -n get default 2>/dev/null | grep interface | awk '{print $2}'")
-    const iface = result.stdout.trim()
-    // 如果是虚拟接口(utun/feth等)，回退到物理接口
-    if (iface && (iface.startsWith('utun') || iface.startsWith('feth') || iface.startsWith('tap') || iface.startsWith('tun'))) {
-      const physResult = await executeCommand("ifconfig -l 2>/dev/null | tr ' ' '\\n' | grep '^en' | head -1")
-      if (physResult.code === 0 && physResult.stdout.trim()) {
-        return physResult.stdout.trim()
+    // 方法1: 使用 scutil --nwi 获取主接口 (macOS 最可靠)
+    const scutilResult = await executeCommand("scutil --nwi 2>/dev/null | grep 'PrimaryInterface' | awk -F': ' '{print $2}' | tr -d ' '")
+    if (scutilResult.code === 0) {
+      const iface = scutilResult.stdout.trim()
+      if (iface) {
+        // 验证该接口有有效 IPv4 地址
+        const checkIp = await executeCommand(`ifconfig ${iface} 2>/dev/null | grep 'inet ' | grep -v '127.0.0.1' | head -1`)
+        if (checkIp.code === 0 && checkIp.stdout.trim()) {
+          return iface
+        }
       }
     }
-    if (result.code === 0 && iface) {
-      return iface
+
+    // 方法2: 遍历 en* 接口，找第一个有有效 IPv4 的物理接口
+    const listResult = await executeCommand("ifconfig -l 2>/dev/null | tr ' ' '\\n' | grep '^en'")
+    if (listResult.code === 0) {
+      const interfaces = listResult.stdout.trim().split('\n').filter(s => s.trim())
+      for (const iface of interfaces) {
+        const checkIp = await executeCommand(`ifconfig ${iface.trim()} 2>/dev/null | grep 'inet ' | grep -v '127.0.0.1' | head -1`)
+        if (checkIp.code === 0 && checkIp.stdout.trim()) {
+          return iface.trim()
+        }
+      }
     }
+
     return 'en0'
   }
 
@@ -72,13 +84,12 @@ export function useNetworkInfo() {
     if (ipv4Result.code === 0 && ipv4Result.stdout.trim()) {
       info.value.ipv4 = ipv4Result.stdout.trim()
     } else {
-      // Fallback
-      const fallback = await executeCommand(`ifconfig ${iface} 2>/dev/null | grep "inet " | awk '{print $2}'`)
+      const fallback = await executeCommand(`ifconfig ${iface} 2>/dev/null | grep 'inet ' | grep -v 127.0.0.1 | awk '{print $2}'`)
       if (fallback.code === 0) info.value.ipv4 = fallback.stdout.trim()
     }
 
     // IPv6 (skip link-local fe80::)
-    const ipv6Result = await executeCommand(`ifconfig ${iface} 2>/dev/null | grep "inet6" | grep -v fe80 | awk '{print $2}' | head -1`)
+    const ipv6Result = await executeCommand(`ifconfig ${iface} 2>/dev/null | grep 'inet6' | grep -v fe80 | awk '{print $2}' | head -1`)
     if (ipv6Result.code === 0) info.value.ipv6 = ipv6Result.stdout.trim()
 
     // DNS
@@ -87,25 +98,42 @@ export function useNetworkInfo() {
       info.value.dnsServers = dnsResult.stdout.trim().split('\n').filter(s => s.trim())
     }
 
-    // DHCP Server
+    // DHCP Server - 通过 DHCP 获取
     const dhcpResult = await executeCommand(`ipconfig getoption ${iface} server_identifier 2>/dev/null`)
-    if (dhcpResult.code === 0) info.value.dhcpServer = dhcpResult.stdout.trim()
+    if (dhcpResult.code === 0 && dhcpResult.stdout.trim()) {
+      info.value.dhcpServer = dhcpResult.stdout.trim()
+    }
 
-    // Gateway - 使用 -f inet 获取真实 IP 而非 link#
-    const gatewayResult = await executeCommand(`netstat -rn -f inet 2>/dev/null | grep '^default' | awk '{print $2}' | head -1`)
-    if (gatewayResult.code === 0) info.value.gateway = gatewayResult.stdout.trim()
-
-    // Speed - 先尝试 ifconfig media，再尝试 system_profiler
-    const speedResult = await executeCommand(`ifconfig ${iface} 2>/dev/null | grep 'media:' | head -1 | awk -F': ' '{print $2}' | awk '{print $1}'`)
-    if (speedResult.code === 0 && speedResult.stdout.trim()) {
-      info.value.speed = speedResult.stdout.trim()
+    // Gateway - 优先从 DHCP 获取路由器地址，再回退路由表
+    const gwDhcp = await executeCommand(`ipconfig getoption ${iface} router 2>/dev/null`)
+    if (gwDhcp.code === 0 && gwDhcp.stdout.trim()) {
+      info.value.gateway = gwDhcp.stdout.trim()
     } else {
-      // WiFi 速率
-      const wifiResult = await executeCommand("airport -I 2>/dev/null | grep 'maxRate' | awk '{print $2}'")
-      if (wifiResult.code === 0 && wifiResult.stdout.trim()) {
-        info.value.speed = wifiResult.stdout.trim() + ' Mb/s'
+      const gwRoute = await executeCommand("netstat -rn -f inet 2>/dev/null | grep '^default' | grep -v utun | awk '{print $2}' | head -1")
+      if (gwRoute.code === 0 && gwRoute.stdout.trim() && !gwRoute.stdout.trim().startsWith('link#')) {
+        info.value.gateway = gwRoute.stdout.trim()
       }
     }
+
+    // Speed - 检测 WiFi 或 有线速率
+    const wifiCheck = await executeCommand("airport -I 2>/dev/null | grep 'maxRate'")
+    if (wifiCheck.code === 0 && wifiCheck.stdout.trim()) {
+      // 优先 WiFi 实际协商速率
+      const lastTxRate = await executeCommand("airport -I 2>/dev/null | grep 'lastTxRate' | awk '{print $2}'")
+      if (lastTxRate.code === 0 && lastTxRate.stdout.trim()) {
+        info.value.speed = lastTxRate.stdout.trim() + ' Mb/s'
+      } else {
+        const maxRate = wifiCheck.stdout.trim().split(':').pop()?.trim() || ''
+        if (maxRate) info.value.speed = maxRate + ' Mb/s'
+      }
+    } else {
+      // 有线速率
+      const mediaResult = await executeCommand(`ifconfig ${iface} 2>/dev/null | grep 'media:' | grep -oE '100base|1000base|2500base|5000base|10000base' | head -1`)
+      if (mediaResult.code === 0 && mediaResult.stdout.trim()) {
+        info.value.speed = mediaResult.stdout.trim() + 'T'
+      }
+    }
+    // 如果 speed 为 none 或空，留空让 UI 显示"不可用"
   }
 
   async function fetchLinuxInfo() {
