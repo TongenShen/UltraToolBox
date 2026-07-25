@@ -17,6 +17,11 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/status-alpha-orange?style=flat-square" alt="Status">
+  <br>
+  <a href="./README.md">🇨🇳 中文</a> ·
+  <a href="./README.en.md">🇬🇧 English</a> ·
+  <a href="./README.ja.md">🇯🇵 日本語</a> ·
+  <a href="./README.ko.md">🇰🇷 한국어</a>
 </p>
 
 ---
@@ -26,6 +31,37 @@
 **UltraToolBox** 是一个基于 [Tauri 2](https://v2.tauri.app/) 的跨平台桌面工具箱，将常用的命令行工具封装成直观的 GUI 界面。无需记忆复杂的命令参数，无需在多个终端窗口中切换，一个应用搞定 ADB 调试、网络测速、文件下载等日常开发运维任务。
 
 > ⚡ **开箱即用** — 只需系统已安装对应的 CLI 工具（adb / iperf3 / aria2c / curl / ping），即可在统一的图形界面中操作它们。
+
+---
+
+## 📁 目录结构
+
+本项目根目录包含以下内容：
+
+```
+UltraToolBox/
+├── UltraToolBox/          # 🎯 主项目目录 — Tauri 2 桌面应用源码
+│   ├── src/               # Vue 3 前端源码（组件/页面/路由/状态）
+│   ├── src-tauri/         # Rust 后端源码（Tauri 配置/插件注册）
+│   ├── public/            # 静态资源
+│   └── package.json       # 前端依赖配置
+├── UltraToolBox规划/       # 📝 项目规划与设计文档（中文）
+│   ├── 规划.md            # 整体开发计划与阶段划分
+│   ├── 工具.md            # 工具功能清单与需求
+│   └── 开发AI响应.md       # AI 辅助开发对话记录
+├── LICENSE                # 📄 MIT 开源许可证
+├── README.md              # 📖 本文件（中文）
+├── README.en.md           # 📖 English version
+├── README.ja.md           # 📖 日本語版
+└── README.ko.md           # 📖 한국어 버전
+```
+
+### 各目录说明
+
+| 目录 | 说明 |
+|------|------|
+| **`UltraToolBox/`** | 主项目目录，包含完整的 Tauri 2 桌面应用源码。前端 (Vue 3 + TypeScript) 和后端 (Rust) 代码均在此目录中。运行 `npm run tauri dev` 在此目录执行。 |
+| **`UltraToolBox规划/`** | 项目规划文档目录，包含初期需求分析、功能规划、UI 设计概念和开发阶段划分。适合想要了解项目背景和设计思路的贡献者阅读。 |
 
 ---
 
@@ -105,7 +141,7 @@
 ```bash
 # 克隆仓库
 git clone https://github.com/your-username/UltraToolBox.git
-cd UltraToolBox
+cd UltraToolBox/UltraToolBox
 
 # 安装前端依赖
 npm install
@@ -117,6 +153,7 @@ npm run tauri dev
 ### 构建安装包
 
 ```bash
+cd UltraToolBox/UltraToolBox
 npm run tauri build
 ```
 
@@ -127,7 +164,7 @@ npm run tauri build
 
 ---
 
-## 📁 项目结构
+## 📁 主项目结构 (`UltraToolBox/UltraToolBox/`)
 
 ```
 UltraToolBox/
@@ -216,6 +253,7 @@ UltraToolBox/
 
 ```bash
 # 仅启动前端开发服务器（不启动 Tauri 窗口）
+cd UltraToolBox/UltraToolBox
 npm run dev
 
 # 构建前端并预览
