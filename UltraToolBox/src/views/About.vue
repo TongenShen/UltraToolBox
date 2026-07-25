@@ -114,9 +114,9 @@ onMounted(async () => {
 
       <!-- Footer -->
       <div class="about-footer">
-        <p>Copyright &copy; 2026 Shentongen</p>
+        <p>Copyright &copy; 2026 TongenShen</p>
         <p class="footer-links">
-          <span>{{ $t('about.footer.madeWith') }}</span>
+          <!-- <span>{{ $t('about.footer.madeWith') }}</span> -->
         </p>
       </div>
     </div>
