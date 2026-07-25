@@ -4,64 +4,64 @@ import { checkCommandExists, executeCommand } from '@/composables/useCommand'
 export interface BinaryInfo {
   name: string          // 内部名称，如 adb, iperf3
   displayName: string   // 显示名称，如 ADB, iPerf3
-  description: string   // 描述
+  descriptionKey: string   // i18n key for description
   version: string       // 版本号
   installed: boolean    // 是否已安装
   checking: boolean     // 正在检查中
   downloadUrl: string   // 下载地址
-  size: string          // 大小描述
+  sizeKey: string       // i18n key for size
 }
 
 const knownBinaries: BinaryInfo[] = [
   {
     name: 'adb',
     displayName: 'ADB',
-    description: 'Android 调试桥',
+    descriptionKey: 'binary.adb.description',
     version: '',
     installed: false,
     checking: false,
     downloadUrl: 'https://developer.android.com/studio/releases/platform-tools',
-    size: '~5MB'
+    sizeKey: 'binary.adb.size'
   },
   {
     name: 'iperf3',
     displayName: 'iPerf3',
-    description: '网络带宽测试工具',
+    descriptionKey: 'binary.iperf3.description',
     version: '',
     installed: false,
     checking: false,
     downloadUrl: 'https://iperf.fr/iperf-download.php',
-    size: '~1MB'
+    sizeKey: 'binary.iperf3.size'
   },
   {
     name: 'aria2c',
     displayName: 'Aria2',
-    description: '多协议下载工具',
+    descriptionKey: 'binary.aria2.description',
     version: '',
     installed: false,
     checking: false,
     downloadUrl: 'https://github.com/aria2/aria2/releases',
-    size: '~2MB'
+    sizeKey: 'binary.aria2.size'
   },
   {
     name: 'curl',
     displayName: 'cURL',
-    description: 'HTTP 请求工具（系统内置）',
+    descriptionKey: 'binary.curl.description',
     version: '',
     installed: false,
     checking: false,
     downloadUrl: 'https://curl.se/download.html',
-    size: '系统内置'
+    sizeKey: 'binary.builtin'
   },
   {
     name: 'ping',
     displayName: 'Ping',
-    description: '网络连通性测试（系统内置）',
+    descriptionKey: 'binary.ping.description',
     version: '',
     installed: false,
     checking: false,
     downloadUrl: '',
-    size: '系统内置'
+    sizeKey: 'binary.builtin'
   }
 ]
 

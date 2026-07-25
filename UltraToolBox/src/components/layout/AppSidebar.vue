@@ -15,21 +15,21 @@ const router = useRouter()
 
 interface NavItem {
   path: string
-  title: string
+  titleKey: string
   icon: string
 }
 
 const navItems: NavItem[] = [
-  { path: '/', title: '首页', icon: '🏠' },
-  { path: '/adb', title: 'ADB 工具', icon: '📱' },
-  { path: '/network', title: '网络工具', icon: '🌐' },
-  { path: '/aria2', title: 'Aria2 下载', icon: '⬇️' },
-  { path: '/terminal', title: '终端', icon: '💻' },
+  { path: '/', titleKey: 'nav.home', icon: '🏠' },
+  { path: '/adb', titleKey: 'nav.adb', icon: '📱' },
+  { path: '/network', titleKey: 'nav.network', icon: '🌐' },
+  { path: '/aria2', titleKey: 'nav.aria2', icon: '⬇️' },
+  { path: '/terminal', titleKey: 'nav.terminal', icon: '💻' },
 ]
 
 const bottomItems: NavItem[] = [
-  { path: '/settings', title: '设置', icon: '⚙️' },
-  { path: '/about', title: '关于', icon: 'ℹ️' },
+  { path: '/settings', titleKey: 'nav.settings', icon: '⚙️' },
+  { path: '/about', titleKey: 'nav.about', icon: 'ℹ️' },
 ]
 
 const activePath = computed(() => route.path)
@@ -58,10 +58,10 @@ function navigate(item: NavItem) {
         class="nav-item"
         :class="{ active: activePath === item.path }"
         @click="navigate(item)"
-        :title="item.title"
+        :title="$t(item.titleKey)"
       >
         <span class="nav-icon">{{ item.icon }}</span>
-        <span class="nav-label" v-if="!collapsed">{{ item.title }}</span>
+        <span class="nav-label" v-if="!collapsed">{{ $t(item.titleKey) }}</span>
       </button>
     </nav>
 
@@ -72,10 +72,10 @@ function navigate(item: NavItem) {
         class="nav-item"
         :class="{ active: activePath === item.path }"
         @click="navigate(item)"
-        :title="item.title"
+        :title="$t(item.titleKey)"
       >
         <span class="nav-icon">{{ item.icon }}</span>
-        <span class="nav-label" v-if="!collapsed">{{ item.title }}</span>
+        <span class="nav-label" v-if="!collapsed">{{ $t(item.titleKey) }}</span>
       </button>
     </div>
   </aside>

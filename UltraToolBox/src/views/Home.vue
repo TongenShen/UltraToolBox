@@ -4,18 +4,18 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const quickTools = [
-  { path: '/adb', title: 'ADB 工具', icon: '📱', desc: 'Android 调试和管理' },
-  { path: '/network', title: '网络工具', icon: '🌐', desc: 'iperf3 测速、Ping、curl' },
-  { path: '/aria2', title: 'Aria2 下载', icon: '⬇️', desc: '多协议下载管理器' },
-  { path: '/terminal', title: '终端', icon: '💻', desc: '快捷打开系统终端' },
+  { path: '/adb', titleKey: 'home.tool.adb', icon: '📱', descKey: 'home.tool.adb.desc' },
+  { path: '/network', titleKey: 'home.tool.network', icon: '🌐', descKey: 'home.tool.network.desc' },
+  { path: '/aria2', titleKey: 'home.tool.aria2', icon: '⬇️', descKey: 'home.tool.aria2.desc' },
+  { path: '/terminal', titleKey: 'home.tool.terminal', icon: '💻', descKey: 'home.tool.terminal.desc' },
 ]
 </script>
 
 <template>
   <div class="home-page">
     <div class="welcome-section">
-      <h1 class="welcome-title">欢迎使用 UltraToolBox</h1>
-      <p class="welcome-desc">跨平台命令行工具箱 · 内置 adb/iperf3/aria2 · 免配置开箱即用</p>
+      <h1 class="welcome-title">{{ $t('home.welcome.title') }}</h1>
+      <p class="welcome-desc">{{ $t('home.welcome.subtitle') }}</p>
     </div>
 
     <div class="tool-grid">
@@ -27,8 +27,8 @@ const quickTools = [
       >
         <span class="tool-icon">{{ tool.icon }}</span>
         <div class="tool-info">
-          <h3 class="tool-name">{{ tool.title }}</h3>
-          <p class="tool-desc">{{ tool.desc }}</p>
+          <h3 class="tool-name">{{ $t(tool.titleKey) }}</h3>
+          <p class="tool-desc">{{ $t(tool.descKey) }}</p>
         </div>
         <span class="tool-arrow">→</span>
       </div>
@@ -36,12 +36,12 @@ const quickTools = [
 
     <div class="info-section">
       <div class="info-card">
-        <h3>💡 快速开始</h3>
-        <p>选择左侧工具栏中的工具开始使用。所有工具均内置命令行程序，无需额外配置。</p>
+        <h3>{{ $t('home.quickstart.title') }}</h3>
+        <p>{{ $t('home.quickstart.desc') }}</p>
       </div>
       <div class="info-card">
-        <h3>🔌 跨平台支持</h3>
-        <p>Windows / macOS / Linux 三平台统一体验，二进制自动适配当前系统。</p>
+        <h3>{{ $t('home.crossplatform.title') }}</h3>
+        <p>{{ $t('home.crossplatform.desc') }}</p>
       </div>
     </div>
   </div>

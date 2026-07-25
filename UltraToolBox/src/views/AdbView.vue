@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { executeCommand, spawnCommand, type CommandEvent } from '@/composables/useCommand'
 import { checkCommandExists } from '@/composables/useCommand'
 import LogPanel from '@/components/common/LogPanel.vue'
 import { useProcessStore } from '@/stores/process'
 
+const { t } = useI18n()
 const processStore = useProcessStore()
 
 // ====== 状态 ======
@@ -67,7 +69,7 @@ async function checkAdb() {
   if (adbAvailable.value) {
     const result = await executeCommand('adb --version 2>&1 | head -3')
     if (result.code === 0) {
-      adbVersion.value = result.stdout.trim().split('\n')[0] || '已安装'
+      adbVersion.value = result.stdout.trim().split('\n')[0] || t('common.installed')
     }
   }
   adbChecking.value = false
@@ -76,7 +78,7 @@ async function checkAdb() {
 // ====== 设备管理 ======
 async function listDevices() {
   devicesLoading.value = true
-  logLines.value.push('> 正在扫描 ADB 设备...')
+  logLines.value.push(t('adb.log.scanning'))
 
   const result = await executeCommand('adb devices -l 2>&1')
   if (result.code === 0) {
@@ -114,9 +116,9 @@ async function listDevices() {
     }
 
     devices.value = deviceList
-    logLines.value.push(`✅ 发现 ${deviceList.length} 台设备`)
+    logLines.value.push(t('adb.log.foundDevices', { n: deviceList.length }))
   } else {
-    logLines.value.push(`❌ 扫描失败: ${result.stderr}`)
+    logLines.value.push(t('adb.log.scanFailed', { error: result.stderr }))
   }
 
   devicesLoading.value = false
@@ -126,26 +128,26 @@ async function connectDevice() {
   if (!connectIp.value.trim()) return
   connecting.value = true
   const addr = `${connectIp.value.trim()}:${connectPort.value}`
-  logLines.value.push(`> 正在连接 ${addr}...`)
+  logLines.value.push(t('adb.log.connecting', { ip: connectIp.value.trim(), port: connectPort.value }))
 
   const result = await executeCommand(`adb connect ${addr} 2>&1`)
   if (result.code === 0) {
-    logLines.value.push(`✅ ${result.stdout.trim()}`)
+    logLines.value.push(t('adb.log.connected'))
     await listDevices()
   } else {
-    logLines.value.push(`❌ 连接失败: ${result.stderr}`)
+    logLines.value.push(t('adb.log.connectFailed', { error: result.stderr }))
   }
   connecting.value = false
 }
 
 async function disconnectDevice(deviceId: string) {
-  logLines.value.push(`> 正在断开 ${deviceId}...`)
+  logLines.value.push(t('adb.log.disconnecting', { serial: deviceId }))
   const result = await executeCommand(`adb disconnect ${deviceId} 2>&1`)
   if (result.code === 0) {
-    logLines.value.push(`✅ 已断开 ${deviceId}`)
+    logLines.value.push(t('adb.log.disconnected', { serial: deviceId }))
     await listDevices()
   } else {
-    logLines.value.push(`❌ 断开失败: ${result.stderr}`)
+    logLines.value.push(t('adb.log.disconnectFailed', { error: result.stderr }))
   }
 }
 
@@ -162,23 +164,23 @@ async function takeScreenshot() {
   if (!device) return
 
   screenshotLoading.value = true
-  logLines.value.push('> 正在截取屏幕...')
+  logLines.value.push(t('adb.log.screenshotting'))
 
   const remotePath = `/sdcard/screenshot_${Date.now()}.png`
   const result = await executeCommand(`adb -s ${device.id} shell screencap -p ${remotePath} 2>&1`)
   if (result.code === 0) {
     screenshotPath.value = remotePath
-    logLines.value.push(`✅ 截图已保存到设备: ${remotePath}`)
+    logLines.value.push(t('adb.log.screenshotSaved', { path: remotePath }))
 
     // Pull to local
     const localPath = `/tmp/screenshot_${Date.now()}.png`
     const pullResult = await executeCommand(`adb -s ${device.id} pull ${remotePath} ${localPath} 2>&1`)
     if (pullResult.code === 0) {
-      logLines.value.push(`✅ 截图已拉取到本地: ${localPath}`)
+      logLines.value.push(t('adb.log.screenshotPulled', { path: localPath }))
       screenshotDest.value = localPath
     }
   } else {
-    logLines.value.push(`❌ 截图失败: ${result.stderr}`)
+    logLines.value.push(t('adb.log.screenshotFailed', { error: result.stderr }))
   }
   screenshotLoading.value = false
 }
@@ -188,16 +190,16 @@ async function rebootDevice(mode: 'normal' | 'bootloader' | 'recovery') {
   if (!device) return
 
   const cmd = mode === 'normal' ? 'reboot' : `reboot ${mode}`
-  logLines.value.push(`> 正在重启设备 (${mode})...`)
+  logLines.value.push(t('adb.log.rebooting', { serial: device.id }))
   const result = await executeCommand(`adb -s ${device.id} ${cmd} 2>&1`)
-  logLines.value.push(result.code === 0 ? '✅ 重启命令已发送' : `❌ 重启失败: ${result.stderr}`)
+  logLines.value.push(result.code === 0 ? t('adb.log.rebootSent') : t('adb.log.rebootFailed', { error: result.stderr }))
 }
 
 async function startScreenrecord() {
   const device = getSelectedDevice()
   if (!device) return
 
-  logLines.value.push('> 开始录屏 (按停止按钮结束)...')
+  logLines.value.push(t('adb.log.screenrecordStart'))
 
   const remotePath = `/sdcard/record_${Date.now()}.mp4`
 
@@ -220,7 +222,7 @@ async function stopScreenrecord() {
     await logcatKill()
     logcatKill = null
     logStatus.value = 'completed'
-    logLines.value.push('✅ 录屏已停止')
+    logLines.value.push(t('adb.log.screenrecordStopped'))
   }
 }
 
@@ -228,7 +230,7 @@ async function getDeviceInfo() {
   const device = getSelectedDevice()
   if (!device) return
 
-  logLines.value.push('> 正在获取设备信息...')
+  logLines.value.push(t('adb.log.gettingInfo'))
   const props = [
     'ro.product.model',
     'ro.product.manufacturer',
@@ -247,7 +249,7 @@ async function getDeviceInfo() {
       logLines.value.push(`  ${label}: ${result.stdout.trim()}`)
     }
   }
-  logLines.value.push('✅ 设备信息获取完成')
+  logLines.value.push(t('adb.log.infoComplete'))
 }
 
 function getSelectedDevice(): AdbDevice | undefined {
@@ -260,17 +262,17 @@ async function installApk() {
   installing.value = true
   const device = devices.value.find(d => d.status === 'device')
   if (!device) {
-    logLines.value.push('❌ 没有已连接的设备')
+    logLines.value.push(t('adb.log.noDevice'))
     installing.value = false
     return
   }
 
-  logLines.value.push(`> 正在安装 APK: ${apkInstallPath.value}`)
+  logLines.value.push(t('adb.log.installingApk', { path: apkInstallPath.value }))
   const result = await executeCommand(`adb -s ${device.id} install -r "${apkInstallPath.value}" 2>&1`)
   if (result.code === 0) {
-    logLines.value.push('✅ APK 安装成功')
+    logLines.value.push(t('adb.log.installSuccess'))
   } else {
-    logLines.value.push(`❌ 安装失败: ${result.stderr || result.stdout}`)
+    logLines.value.push(t('adb.log.installFailed', { error: result.stderr || result.stdout }))
   }
   installing.value = false
 }
@@ -280,17 +282,17 @@ async function uninstallApk() {
   uninstalling.value = true
   const device = devices.value.find(d => d.status === 'device')
   if (!device) {
-    logLines.value.push('❌ 没有已连接的设备')
+    logLines.value.push(t('adb.log.noDevice'))
     uninstalling.value = false
     return
   }
 
-  logLines.value.push(`> 正在卸载: ${apkUninstallPackage.value}`)
+  logLines.value.push(t('adb.log.uninstalling', { pkg: apkUninstallPackage.value }))
   const result = await executeCommand(`adb -s ${device.id} uninstall ${apkUninstallPackage.value} 2>&1`)
   if (result.code === 0) {
-    logLines.value.push('✅ 卸载成功')
+    logLines.value.push(t('adb.log.uninstallSuccess'))
   } else {
-    logLines.value.push(`❌ 卸载失败: ${result.stderr || result.stdout}`)
+    logLines.value.push(t('adb.log.uninstallFailed', { error: result.stderr || result.stdout }))
   }
   uninstalling.value = false
 }
@@ -299,18 +301,18 @@ async function listPackages() {
   packagesLoading.value = true
   const device = devices.value.find(d => d.status === 'device')
   if (!device) {
-    logLines.value.push('❌ 没有已连接的设备')
+    logLines.value.push(t('adb.log.noDevice'))
     packagesLoading.value = false
     return
   }
 
-  logLines.value.push('> 正在获取应用列表...')
+  logLines.value.push(t('adb.log.fetchingPackages'))
   const result = await executeCommand(`adb -s ${device.id} shell pm list packages -f 2>&1`)
   if (result.code === 0) {
     packagesList.value = result.stdout.trim().split('\n').filter(l => l.trim())
-    logLines.value.push(`✅ 共 ${packagesList.value.length} 个应用`)
+    logLines.value.push(t('adb.log.totalPackages', { n: packagesList.value.length }))
   } else {
-    logLines.value.push(`❌ 获取失败: ${result.stderr}`)
+    logLines.value.push(t('adb.log.packagesFailed', { error: result.stderr }))
   }
   packagesLoading.value = false
 }
@@ -326,7 +328,7 @@ async function listFiles(path: string) {
   fileLoading.value = true
   const device = devices.value.find(d => d.status === 'device')
   if (!device) {
-    logLines.value.push('❌ 没有已连接的设备')
+    logLines.value.push(t('adb.log.noDevice'))
     fileLoading.value = false
     return
   }
@@ -364,7 +366,7 @@ async function listFiles(path: string) {
     fileList.value = items
     filePath.value = path
   } else {
-    logLines.value.push(`❌ 读取目录失败: ${result.stderr}`)
+    logLines.value.push(t('adb.log.listDirFailed', { path }))
     fileList.value = []
   }
   fileLoading.value = false
@@ -386,12 +388,12 @@ async function pullFile(fileName: string) {
   if (!device) return
 
   const remotePath = `${filePath.value}/${fileName}`
-  logLines.value.push(`> 正在拉取文件: ${remotePath}`)
+  logLines.value.push(t('adb.log.pullingFile', { path: remotePath }))
   const result = await executeCommand(`adb -s ${device.id} pull "${remotePath}" ./ 2>&1`)
   if (result.code === 0) {
-    logLines.value.push(`✅ 文件已拉取到当前目录: ${fileName}`)
+    logLines.value.push(t('adb.log.filePulled', { path: fileName }))
   } else {
-    logLines.value.push(`❌ 拉取失败: ${result.stderr}`)
+    logLines.value.push(t('adb.log.pullFailed', { error: result.stderr }))
   }
 }
 
@@ -399,12 +401,12 @@ async function pullFile(fileName: string) {
 async function startLogcat() {
   const device = devices.value.find(d => d.status === 'device')
   if (!device) {
-    logLines.value.push('❌ 没有已连接的设备')
+    logLines.value.push(t('adb.log.noDevice'))
     return
   }
 
   logStatus.value = 'running'
-  logLines.value.push('> 正在启动 Logcat (实时输出)...')
+  logLines.value.push(t('adb.log.logcatStarting'))
 
   try {
     const { kill } = await spawnCommand(
@@ -418,7 +420,7 @@ async function startLogcat() {
     logcatKill = kill
   } catch (e) {
     logStatus.value = 'error'
-    logLines.value.push(`❌ Logcat 启动失败: ${e}`)
+    logLines.value.push(t('adb.log.logcatStartFailed', { error: e }))
   }
 }
 
@@ -427,7 +429,7 @@ async function stopLogcat() {
     await logcatKill()
     logcatKill = null
     logStatus.value = 'completed'
-    logLines.value.push('✅ Logcat 已停止')
+    logLines.value.push(t('adb.log.logcatStopped'))
   }
 }
 
@@ -437,9 +439,9 @@ async function clearLogcat() {
 
   const result = await executeCommand(`adb -s ${device.id} logcat -c 2>&1`)
   if (result.code === 0) {
-    logLines.value.push('✅ Logcat 缓存已清除')
+    logLines.value.push(t('adb.log.logcatCleared'))
   } else {
-    logLines.value.push(`❌ 清除失败: ${result.stderr}`)
+    logLines.value.push(t('adb.log.logcatClearFailed', { error: result.stderr }))
   }
 }
 
@@ -469,23 +471,23 @@ onUnmounted(() => {
     <div class="tool-container">
       <!-- Header -->
       <div class="tool-header">
-        <h2 class="tool-title">📱 ADB 调试桥</h2>
-        <p class="tool-desc">Android 设备调试与管理工具</p>
+        <h2 class="tool-title">{{ $t('adb.title') }}</h2>
+        <p class="tool-desc">{{ $t('adb.subtitle') }}</p>
       </div>
 
       <!-- ADB Status -->
       <div class="adb-status-bar" v-if="!adbChecking">
         <div v-if="adbAvailable" class="status-ok">
-          ✅ ADB 已就绪
+          {{ $t('adb.ready') }}
           <span class="version" v-if="adbVersion">| {{ adbVersion }}</span>
         </div>
         <div v-else class="status-fail">
-          ❌ ADB 未安装或不在 PATH 中
-          <a href="https://developer.android.com/studio/releases/platform-tools" target="_blank" class="download-link">下载 Platform Tools</a>
+          {{ $t('adb.notInstalled') }}
+          <a href="https://developer.android.com/studio/releases/platform-tools" target="_blank" class="download-link">{{ $t('adb.downloadTools') }}</a>
         </div>
       </div>
       <div class="adb-status-bar" v-else>
-        ⏳ 正在检测 ADB 环境...
+        {{ $t('adb.checking') }}
       </div>
 
       <!-- Tab Navigation -->
@@ -494,27 +496,27 @@ onUnmounted(() => {
           class="tab-btn"
           :class="{ active: activeTab === 'devices' }"
           @click="activeTab = 'devices'"
-        >📡 设备管理</button>
+        >{{ $t('adb.tab.devices') }}</button>
         <button
           class="tab-btn"
           :class="{ active: activeTab === 'quick' }"
           @click="activeTab = 'quick'"
-        >⚡ 快捷操作</button>
+        >{{ $t('adb.tab.quick') }}</button>
         <button
           class="tab-btn"
           :class="{ active: activeTab === 'apk' }"
           @click="activeTab = 'apk'"
-        >📦 APK 管理</button>
+        >{{ $t('adb.tab.apk') }}</button>
         <button
           class="tab-btn"
           :class="{ active: activeTab === 'logcat' }"
           @click="activeTab = 'logcat'"
-        >📋 Logcat</button>
+        >{{ $t('adb.tab.logcat') }}</button>
         <button
           class="tab-btn"
           :class="{ active: activeTab === 'files' }"
           @click="activeTab = 'files'"
-        >📁 文件浏览</button>
+        >{{ $t('adb.tab.files') }}</button>
       </div>
 
       <!-- Tab Content -->
@@ -523,16 +525,16 @@ onUnmounted(() => {
         <div v-show="activeTab === 'devices'" class="content-panel">
           <div class="panel-section">
             <div class="section-header">
-              <h3>已连接的设备</h3>
+              <h3>{{ $t('adb.devices.title') }}</h3>
               <div class="header-actions">
                 <button class="btn btn-sm" @click="listDevices" :disabled="devicesLoading">
-                  {{ devicesLoading ? '⏳ 扫描中...' : '🔄 刷新' }}
+                  {{ devicesLoading ? $t('adb.devices.scanning') : $t('adb.devices.refresh') }}
                 </button>
               </div>
             </div>
 
             <div v-if="devices.length === 0" class="empty-state">
-              没有已连接的设备。请通过 USB 连接设备并开启 USB 调试，或使用 Wi-Fi 连接。
+              {{ $t('adb.devices.empty') }}
             </div>
 
             <div v-for="device in devices" :key="device.id" class="device-card">
@@ -541,7 +543,7 @@ onUnmounted(() => {
                 <div class="device-id">{{ device.id }}</div>
                 <div class="device-meta">
                   <span class="device-status" :class="device.status">
-                    {{ device.status === 'device' ? '已连接' : device.status === 'offline' ? '离线' : device.status === 'unauthorized' ? '未授权' : device.status }}
+                    {{ device.status === 'device' ? $t('adb.device.connected') : device.status === 'offline' ? $t('adb.device.offline') : device.status === 'unauthorized' ? $t('adb.device.unauthorized') : device.status }}
                   </span>
                   <span v-if="device.model" class="device-model">{{ device.model }}</span>
                   <span v-if="device.androidVersion" class="device-android">Android {{ device.androidVersion }}</span>
@@ -550,81 +552,81 @@ onUnmounted(() => {
               </div>
               <div class="device-actions">
                 <button class="btn btn-sm btn-danger" @click="disconnectDevice(device.id)" v-if="device.id.includes(':')">
-                  断开
+                  {{ $t('adb.device.disconnect') }}
                 </button>
               </div>
             </div>
           </div>
 
           <div class="panel-section">
-            <h3>Wi-Fi 连接</h3>
+            <h3>{{ $t('adb.wifi.title') }}</h3>
             <div class="connect-form">
               <input
                 v-model="connectIp"
-                placeholder="IP 地址 (如 192.168.1.100)"
+                :placeholder="$t('adb.wifi.ipPlaceholder')"
                 class="input"
                 :disabled="connecting"
               />
               <input
                 v-model="connectPort"
-                placeholder="端口"
+                :placeholder="$t('adb.wifi.port')"
                 class="input input-sm"
                 style="width: 80px"
                 :disabled="connecting"
               />
               <button class="btn" @click="connectDevice" :disabled="connecting || !connectIp.trim()">
-                {{ connecting ? '⏳ 连接中...' : '🔗 连接' }}
+                {{ connecting ? $t('adb.wifi.connecting') : $t('adb.wifi.connect') }}
               </button>
             </div>
-            <div class="hint">提示：设备需先通过 USB 连接并执行 <code>adb tcpip 5555</code>，然后拔掉 USB 即可通过 Wi-Fi 连接</div>
+            <div class="hint">{{ $t('adb.wifi.hint') }} <code>adb tcpip 5555</code>{{ $t('adb.wifi.hint2') }}</div>
           </div>
         </div>
 
         <!-- ====== 快捷操作 ====== -->
         <div v-show="activeTab === 'quick'" class="content-panel">
           <div class="panel-section">
-            <h3>快捷操作</h3>
+            <h3>{{ $t('adb.quick.title') }}</h3>
             <div class="quick-grid">
               <button class="quick-btn" @click="takeScreenshot" :disabled="screenshotLoading || !getSelectedDevice()">
                 <span class="quick-icon">📸</span>
-                <span class="quick-label">截图</span>
-                <span class="quick-desc">截取设备屏幕</span>
+                <span class="quick-label">{{ $t('adb.quick.screenshot') }}</span>
+                <span class="quick-desc">{{ $t('adb.quick.screenshot.desc') }}</span>
               </button>
 
               <button class="quick-btn" @click="startScreenrecord" :disabled="logStatus === 'running' || !getSelectedDevice()">
                 <span class="quick-icon">🎬</span>
-                <span class="quick-label">录屏</span>
-                <span class="quick-desc">开始屏幕录制</span>
+                <span class="quick-label">{{ $t('adb.quick.screenrecord') }}</span>
+                <span class="quick-desc">{{ $t('adb.quick.screenrecord.desc') }}</span>
               </button>
 
               <button class="quick-btn danger" @click="stopScreenrecord" :disabled="logStatus !== 'running'">
                 <span class="quick-icon">⏹️</span>
-                <span class="quick-label">停止录屏</span>
-                <span class="quick-desc">停止并保存录制</span>
+                <span class="quick-label">{{ $t('adb.quick.stopScreenrecord') }}</span>
+                <span class="quick-desc">{{ $t('adb.quick.stopScreenrecord.desc') }}</span>
               </button>
 
               <button class="quick-btn" @click="getDeviceInfo" :disabled="!getSelectedDevice()">
                 <span class="quick-icon">ℹ️</span>
-                <span class="quick-label">设备信息</span>
-                <span class="quick-desc">查看详细硬件信息</span>
+                <span class="quick-label">{{ $t('adb.quick.deviceInfo') }}</span>
+                <span class="quick-desc">{{ $t('adb.quick.deviceInfo.desc') }}</span>
               </button>
 
               <button class="quick-btn" @click="rebootDevice('normal')" :disabled="!getSelectedDevice()">
                 <span class="quick-icon">🔄</span>
-                <span class="quick-label">重启</span>
-                <span class="quick-desc">正常重启设备</span>
+                <span class="quick-label">{{ $t('adb.quick.reboot') }}</span>
+                <span class="quick-desc">{{ $t('adb.quick.reboot.desc') }}</span>
               </button>
 
               <button class="quick-btn warning" @click="rebootDevice('bootloader')" :disabled="!getSelectedDevice()">
                 <span class="quick-icon">🔧</span>
-                <span class="quick-label">重启到 Bootloader</span>
-                <span class="quick-desc">进入刷机模式</span>
+                <span class="quick-label">{{ $t('adb.quick.rebootBootloader') }}</span>
+                <span class="quick-desc">{{ $t('adb.quick.rebootBootloader.desc') }}</span>
               </button>
 
               <button class="quick-btn warning" @click="rebootDevice('recovery')" :disabled="!getSelectedDevice()">
                 <span class="quick-icon">🛠️</span>
-                <span class="quick-label">重启到 Recovery</span>
-                <span class="quick-desc">进入恢复模式</span>
+                <span class="quick-label">{{ $t('adb.quick.rebootRecovery') }}</span>
+                <span class="quick-desc">{{ $t('adb.quick.rebootRecovery.desc') }}</span>
               </button>
             </div>
           </div>
@@ -633,46 +635,46 @@ onUnmounted(() => {
         <!-- ====== APK 管理 ====== -->
         <div v-show="activeTab === 'apk'" class="content-panel">
           <div class="panel-section">
-            <h3>安装 APK</h3>
+            <h3>{{ $t('adb.apk.install.title') }}</h3>
             <div class="form-row">
               <input
                 v-model="apkInstallPath"
-                placeholder="APK 文件路径 (如 /path/to/app.apk)"
+                :placeholder="$t('adb.apk.install.placeholder')"
                 class="input"
                 :disabled="installing"
               />
               <button class="btn" @click="installApk" :disabled="installing || !apkInstallPath.trim()">
-                {{ installing ? '⏳ 安装中...' : '📦 安装' }}
+                {{ installing ? $t('adb.apk.installing') : $t('adb.apk.install') }}
               </button>
             </div>
           </div>
 
           <div class="panel-section">
-            <h3>卸载应用</h3>
+            <h3>{{ $t('adb.apk.uninstall.title') }}</h3>
             <div class="form-row">
               <input
                 v-model="apkUninstallPackage"
-                placeholder="包名 (如 com.example.app)"
+                :placeholder="$t('adb.apk.uninstall.placeholder')"
                 class="input"
                 :disabled="uninstalling"
               />
               <button class="btn btn-danger" @click="uninstallApk" :disabled="uninstalling || !apkUninstallPackage.trim()">
-                {{ uninstalling ? '⏳ 卸载中...' : '🗑️ 卸载' }}
+                {{ uninstalling ? $t('adb.apk.uninstalling') : $t('adb.apk.uninstall') }}
               </button>
             </div>
           </div>
 
           <div class="panel-section">
             <div class="section-header">
-              <h3>已安装应用</h3>
+              <h3>{{ $t('adb.apk.list.title') }}</h3>
               <button class="btn btn-sm" @click="listPackages" :disabled="packagesLoading">
-                {{ packagesLoading ? '⏳ 加载中...' : '🔄 刷新' }}
+                {{ packagesLoading ? $t('adb.apk.loading') : $t('adb.devices.refresh') }}
               </button>
             </div>
             <div class="search-box" v-if="packagesList.length > 0">
               <input
                 v-model="apkSearchQuery"
-                placeholder="搜索包名..."
+                :placeholder="$t('adb.apk.searchPlaceholder')"
                 class="input"
               />
             </div>
@@ -686,9 +688,9 @@ onUnmounted(() => {
                 <span class="pkg-name">{{ pkg.includes(':') ? pkg.split(':').pop() : pkg }}</span>
                 <span class="pkg-path" v-if="pkg.includes(':')">{{ pkg.split(':')[0] }}</span>
               </div>
-              <div v-if="filteredPackages.length === 0" class="empty-state">没有匹配的应用</div>
+              <div v-if="filteredPackages.length === 0" class="empty-state">{{ $t('adb.apk.searchEmpty') }}</div>
             </div>
-            <div v-else class="empty-state">点击刷新获取应用列表</div>
+            <div v-else class="empty-state">{{ $t('adb.apk.listEmpty') }}</div>
           </div>
         </div>
 
@@ -696,20 +698,20 @@ onUnmounted(() => {
         <div v-show="activeTab === 'logcat'" class="content-panel">
           <div class="panel-section">
             <div class="section-header">
-              <h3>Logcat 日志</h3>
+              <h3>{{ $t('adb.logcat.title') }}</h3>
               <div class="header-actions">
                 <button
                   v-if="logStatus !== 'running'"
                   class="btn btn-sm"
                   @click="startLogcat"
                   :disabled="!getSelectedDevice()"
-                >▶️ 启动</button>
+                >{{ $t('adb.logcat.start') }}</button>
                 <button
                   v-else
                   class="btn btn-sm btn-danger"
                   @click="stopLogcat"
-                >⏹️ 停止</button>
-                <button class="btn btn-sm" @click="clearLogcat">🧹 清除缓存</button>
+                >{{ $t('adb.logcat.stop') }}</button>
+                <button class="btn btn-sm" @click="clearLogcat">{{ $t('adb.logcat.clear') }}</button>
               </div>
             </div>
             <LogPanel
@@ -725,10 +727,10 @@ onUnmounted(() => {
         <div v-show="activeTab === 'files'" class="content-panel">
           <div class="panel-section">
             <div class="section-header">
-              <h3>文件浏览器</h3>
+              <h3>{{ $t('adb.files.title') }}</h3>
               <div class="header-actions">
-                <button class="btn btn-sm" @click="listFiles('/sdcard')">🏠 主页</button>
-                <button class="btn btn-sm" @click="listFiles('/')">📁 根目录</button>
+                <button class="btn btn-sm" @click="listFiles('/sdcard')">{{ $t('adb.files.home') }}</button>
+                <button class="btn btn-sm" @click="listFiles('/')">{{ $t('adb.files.root') }}</button>
               </div>
             </div>
             <div class="file-path-bar">
@@ -740,7 +742,7 @@ onUnmounted(() => {
             </div>
             <div class="file-grid">
               <div v-if="fileList.length === 0 && !fileLoading" class="empty-state">
-                选择一个目录浏览
+                {{ $t('adb.files.empty') }}
               </div>
               <div
                 v-for="item in fileList"
@@ -758,7 +760,7 @@ onUnmounted(() => {
                   v-if="!item.isDir"
                   class="btn btn-sm"
                   @click.stop="pullFile(item.name)"
-                  title="拉取到本地"
+                  :title="$t('adb.files.pull')"
                 >⬇️</button>
               </div>
             </div>
@@ -768,7 +770,7 @@ onUnmounted(() => {
 
       <!-- ADB not available -->
       <div v-if="!adbChecking && !adbAvailable && activeTab !== 'devices'" class="adb-required">
-        ⚠️ 请先安装 ADB 并重启应用
+        {{ $t('adb.required') }}
       </div>
     </div>
   </div>

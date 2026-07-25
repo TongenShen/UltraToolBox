@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { executeCommand, spawnCommand, type CommandEvent } from '@/composables/useCommand'
 import { checkCommandExists } from '@/composables/useCommand'
 import LogPanel from '@/components/common/LogPanel.vue'
+
+const { t } = useI18n()
 
 // ====== 状态 ======
 const aria2Available = ref(false)
@@ -61,7 +64,7 @@ async function checkAria2() {
 
 // ====== RPC 服务器管理 ======
 async function startServer() {
-  logLines.value.push(`> 启动 Aria2 RPC 服务器 (端口 ${serverPort.value})...`)
+  logLines.value.push(t('aria2.server.starting', { port: serverPort.value }))
 
   const config = [
     `--enable-rpc`,
@@ -91,23 +94,23 @@ async function startServer() {
     aria2Running.value = true
     serverStarted.value = true
     logStatus.value = 'running'
-    logLines.value.push('✅ Aria2 RPC 服务器已启动')
+    logLines.value.push(t('aria2.server.started'))
   } catch (e) {
-    logLines.value.push(`❌ 启动失败: ${e}`)
+    logLines.value.push(t('aria2.server.startFailed', { error: e }))
     logStatus.value = 'error'
   }
 }
 
 async function stopServer() {
   if (aria2Process) {
-    logLines.value.push('> 正在停止 Aria2 服务器...')
+    logLines.value.push(t('aria2.server.stopping'))
     await executeCommand('pkill -f "aria2c.*enable-rpc" 2>/dev/null || true')
     await aria2Process.kill()
     aria2Process = null
     aria2Running.value = false
     serverStarted.value = false
     logStatus.value = 'completed'
-    logLines.value.push('⏹️ Aria2 服务器已停止')
+    logLines.value.push(t('aria2.server.stoppedMsg'))
   }
 }
 
@@ -115,7 +118,7 @@ async function stopServer() {
 async function startDownload() {
   if (!downloadUrl.value.trim()) return
   if (!aria2Running.value) {
-    logLines.value.push('⚠️ 请先启动 Aria2 服务器')
+    logLines.value.push(t('aria2.warning.startServerFirst'))
     return
   }
 
@@ -134,7 +137,7 @@ async function startDownload() {
   tasks.value.unshift(task)
   selectedTaskIndex.value = 0
 
-  logLines.value.push(`> 添加下载: ${url}`)
+  logLines.value.push(t('aria2.log.addingDownload', { url }))
 
   // Use aria2c RPC to add URI
   // For simplicity, we use direct aria2c download
@@ -176,12 +179,12 @@ async function startBtDownload() {
   const link = magnetLink.value.trim() || torrentPath.value.trim()
   if (!link) return
   if (!aria2Running.value) {
-    logLines.value.push('⚠️ 请先启动 Aria2 服务器')
+    logLines.value.push(t('aria2.warning.startServerFirst'))
     return
   }
 
   btDownloading.value = true
-  logLines.value.push(`> 添加 BT 下载: ${link.substring(0, 60)}...`)
+  logLines.value.push(t('aria2.log.addingBtDownload', { link: link.substring(0, 60) }))
 
   let cmd: string
   if (link.startsWith('magnet:')) {
@@ -249,22 +252,22 @@ onUnmounted(() => {
     <div class="tool-container">
       <!-- Header -->
       <div class="tool-header">
-        <h2 class="tool-title">⬇️ Aria2 下载管理器</h2>
-        <p class="tool-desc">多协议下载工具（HTTP/HTTPS/BT/磁力链接）</p>
+        <h2 class="tool-title">{{ $t('aria2.title') }}</h2>
+        <p class="tool-desc">{{ $t('aria2.subtitle') }}</p>
       </div>
 
       <!-- Aria2 Status -->
       <div class="status-bar">
-        <div v-if="aria2Checking" class="status-checking">⏳ 检测 Aria2 环境...</div>
+        <div v-if="aria2Checking" class="status-checking">{{ $t('aria2.checking') }}</div>
         <template v-else>
           <div class="status-left">
-            <span v-if="aria2Available" class="status-ok">✅ Aria2 已就绪</span>
-            <span v-else class="status-fail">❌ Aria2 未安装</span>
+            <span v-if="aria2Available" class="status-ok">{{ $t('aria2.ready') }}</span>
+            <span v-else class="status-fail">{{ $t('aria2.notInstalled') }}</span>
             <span class="status-version" v-if="aria2Version">{{ aria2Version }}</span>
           </div>
           <div class="status-right">
             <span class="server-status" :class="{ running: serverStarted }">
-              {{ serverStarted ? '🟢 服务器运行中' : '🔴 服务器未启动' }}
+              {{ serverStarted ? $t('aria2.server.running') : $t('aria2.server.stopped') }}
             </span>
           </div>
         </template>
@@ -276,28 +279,28 @@ onUnmounted(() => {
           class="tab-btn"
           :class="{ active: activeTab === 'download' }"
           @click="activeTab = 'download'"
-        >📥 HTTP 下载</button>
+        >{{ $t('aria2.tab.http') }}</button>
         <button
           class="tab-btn"
           :class="{ active: activeTab === 'bt' }"
           @click="activeTab = 'bt'"
-        >🧲 BT/磁力</button>
+        >{{ $t('aria2.tab.bt') }}</button>
         <button
           class="tab-btn"
           :class="{ active: activeTab === 'server' }"
           @click="activeTab = 'server'"
-        >⚙️ 服务器管理</button>
+        >{{ $t('aria2.tab.server') }}</button>
       </div>
 
       <div class="tab-content" v-if="aria2Available">
         <!-- ====== HTTP 下载 ====== -->
         <div v-show="activeTab === 'download'" class="content-panel">
           <div class="panel-section">
-            <h3>📥 添加下载</h3>
+            <h3>{{ $t('aria2.addDownload.title') }}</h3>
             <div class="form-row">
               <input
                 v-model="downloadUrl"
-                placeholder="下载链接 (URL)"
+                :placeholder="$t('aria2.addDownload.urlPlaceholder')"
                 class="input"
                 :disabled="isDownloading"
               />
@@ -306,34 +309,34 @@ onUnmounted(() => {
                 @click="startDownload"
                 :disabled="isDownloading || !downloadUrl.trim() || !serverStarted"
               >
-                {{ isDownloading ? '⏳ 下载中...' : '▶️ 下载' }}
+                {{ isDownloading ? $t('aria2.downloading') : $t('aria2.download') }}
               </button>
             </div>
             <div class="form-row" style="margin-top: 8px">
               <input
                 v-model="downloadDir"
-                placeholder="下载目录"
+                :placeholder="$t('aria2.downloadDir')"
                 class="input"
                 :disabled="isDownloading"
               />
-              <span class="hint-text">保存位置</span>
+              <span class="hint-text">{{ $t('aria2.downloadDir.hint') }}</span>
             </div>
           </div>
 
           <!-- Download Tasks -->
           <div class="panel-section">
             <div class="section-header">
-              <h3>下载任务</h3>
-              <button class="btn btn-sm" @click="clearTasks" v-if="tasks.length > 0">🗑️ 清空</button>
+              <h3>{{ $t('aria2.tasks.title') }}</h3>
+              <button class="btn btn-sm" @click="clearTasks" v-if="tasks.length > 0">{{ $t('aria2.tasks.clear') }}</button>
             </div>
-            <div v-if="tasks.length === 0" class="empty-state">暂无下载任务</div>
+            <div v-if="tasks.length === 0" class="empty-state">{{ $t('aria2.tasks.empty') }}</div>
             <div v-for="(task, index) in tasks" :key="index" class="task-card">
               <div class="task-info">
                 <div class="task-name">{{ task.fileName }}</div>
                 <div class="task-url">{{ task.url.substring(0, 80) }}{{ task.url.length > 80 ? '...' : '' }}</div>
                 <div class="task-meta">
                   <span class="task-status" :class="task.status">
-                    {{ task.status === 'queued' ? '排队中' : task.status === 'downloading' ? '下载中' : task.status === 'completed' ? '已完成' : '错误' }}
+                    {{ task.status === 'queued' ? $t('aria2.task.queued') : task.status === 'downloading' ? $t('aria2.task.downloading') : task.status === 'completed' ? $t('aria2.task.completed') : $t('aria2.task.error') }}
                   </span>
                   <span v-if="task.progress" class="task-progress">{{ task.progress }}</span>
                 </div>
@@ -346,7 +349,7 @@ onUnmounted(() => {
         <!-- ====== BT/磁力 ====== -->
         <div v-show="activeTab === 'bt'" class="content-panel">
           <div class="panel-section">
-            <h3>🧲 磁力链接</h3>
+            <h3>{{ $t('aria2.magnet.title') }}</h3>
             <div class="form-row">
               <input
                 v-model="magnetLink"
@@ -359,17 +362,17 @@ onUnmounted(() => {
                 @click="startBtDownload"
                 :disabled="btDownloading || !magnetLink.trim() || !serverStarted"
               >
-                {{ btDownloading ? '⏳ 添加中...' : '▶️ 下载' }}
+                {{ btDownloading ? $t('aria2.adding') : $t('aria2.download') }}
               </button>
             </div>
           </div>
 
           <div class="panel-section">
-            <h3>📁 Torrent 文件</h3>
+            <h3>{{ $t('aria2.torrent.title') }}</h3>
             <div class="form-row">
               <input
                 v-model="torrentPath"
-                placeholder="本地的 .torrent 文件路径"
+                :placeholder="$t('aria2.torrent.placeholder')"
                 class="input"
                 :disabled="btDownloading"
               />
@@ -378,7 +381,7 @@ onUnmounted(() => {
                 @click="startBtDownload"
                 :disabled="btDownloading || !torrentPath.trim() || !serverStarted"
               >
-                {{ btDownloading ? '⏳ 添加中...' : '▶️ 下载' }}
+                {{ btDownloading ? $t('aria2.adding') : $t('aria2.download') }}
               </button>
             </div>
           </div>
@@ -387,10 +390,10 @@ onUnmounted(() => {
         <!-- ====== 服务器管理 ====== -->
         <div v-show="activeTab === 'server'" class="content-panel">
           <div class="panel-section">
-            <h3>⚙️ Aria2 RPC 服务器配置</h3>
+            <h3>{{ $t('aria2.serverConfig.title') }}</h3>
             <div class="config-grid">
               <div class="config-item">
-                <label class="config-label">监听端口</label>
+                <label class="config-label">{{ $t('aria2.serverConfig.port') }}</label>
                 <input v-model="serverPort" class="input" style="width: 100px" :disabled="serverStarted" />
               </div>
               <div class="config-item">
@@ -398,16 +401,16 @@ onUnmounted(() => {
                 <input v-model="rpcSecret" class="input" style="width: 160px" :disabled="serverStarted" />
               </div>
               <div class="config-item">
-                <label class="config-label">最大并发数</label>
+                <label class="config-label">{{ $t('aria2.serverConfig.maxConcurrent') }}</label>
                 <input v-model="maxConcurrent" class="input" style="width: 80px" :disabled="serverStarted" />
               </div>
               <div class="config-item">
-                <label class="config-label">速度限制 (0=不限)</label>
+                <label class="config-label">{{ $t('aria2.serverConfig.speedLimit') }}</label>
                 <input v-model="maxSpeed" class="input" style="width: 100px" :disabled="serverStarted" />
                 <span class="hint-text">KB/s</span>
               </div>
               <div class="config-item">
-                <label class="config-label">下载目录</label>
+                <label class="config-label">{{ $t('aria2.serverConfig.downloadDir') }}</label>
                 <input v-model="downloadDir" class="input" :disabled="serverStarted" />
               </div>
             </div>
@@ -417,25 +420,25 @@ onUnmounted(() => {
                 class="btn btn-primary"
                 @click="startServer"
                 :disabled="!aria2Available"
-              >▶️ 启动服务器</button>
+              >{{ $t('aria2.server.start') }}</button>
               <button
                 v-else
                 class="btn btn-danger"
                 @click="stopServer"
-              >⏹️ 停止服务器</button>
+              >{{ $t('aria2.server.stop') }}</button>
             </div>
           </div>
 
           <!-- RPC Info -->
           <div class="panel-section" v-if="serverStarted">
-            <h3>🔗 RPC 连接信息</h3>
+            <h3>{{ $t('aria2.rpcInfo.title') }}</h3>
             <div class="rpc-info">
               <div class="rpc-row">
-                <span class="rpc-label">RPC 地址:</span>
+                <span class="rpc-label">{{ $t('aria2.rpcInfo.address') }}</span>
                 <code>http://localhost:{{ serverPort }}/jsonrpc</code>
               </div>
               <div class="rpc-row">
-                <span class="rpc-label">RPC Secret:</span>
+                <span class="rpc-label">{{ $t('aria2.rpcInfo.secret') }}</span>
                 <code>{{ rpcSecret }}</code>
               </div>
             </div>
@@ -445,12 +448,12 @@ onUnmounted(() => {
         <!-- ====== 日志 ====== -->
         <div class="panel-section">
           <div class="section-header">
-            <h3>📋 操作日志</h3>
+            <h3>{{ $t('aria2.log.title') }}</h3>
             <button
               v-if="serverStarted"
               class="btn btn-sm btn-danger"
               @click="stopServer"
-            >⏹️ 停止服务器</button>
+            >{{ $t('aria2.server.stop') }}</button>
           </div>
           <LogPanel
             :lines="logLines"
@@ -464,10 +467,10 @@ onUnmounted(() => {
       <!-- Aria2 not available -->
       <div v-if="!aria2Checking && !aria2Available" class="not-available">
         <div class="not-available-icon">⚠️</div>
-        <h3>Aria2 未安装</h3>
-        <p>请先安装 Aria2：</p>
+        <h3>{{ $t('aria2.notInstalled.title') }}</h3>
+        <p>{{ $t('aria2.notInstalled.help') }}</p>
         <div class="install-cmd">brew install aria2</div>
-        <p class="hint-text">macOS 使用 Homebrew 安装，Linux 使用 apt/yum，Windows 下载 exe 安装包</p>
+        <p class="hint-text">{{ $t('aria2.notInstalled.hint') }}</p>
       </div>
     </div>
   </div>

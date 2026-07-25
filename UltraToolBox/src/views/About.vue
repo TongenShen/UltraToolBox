@@ -33,7 +33,7 @@ onMounted(async () => {
         <h1 class="about-title">UltraToolBox</h1>
         <p class="about-version">{{ appVersion }}</p>
         <p class="about-desc">
-          跨平台命令行工具箱
+          {{ $t('about.subtitle') }}
         </p>
       </div>
 
@@ -42,21 +42,21 @@ onMounted(async () => {
         <div class="about-card">
           <div class="card-icon">🎯</div>
           <div class="card-text">
-            <strong>产品定位</strong>
-            一站式收纳开发/运维/搞机常用命令行工具，免配置开箱即用
+            <strong>{{ $t('about.positioning.title') }}</strong>
+            {{ $t('about.positioning.desc') }}
           </div>
         </div>
         <div class="about-card">
           <div class="card-icon">🛠️</div>
           <div class="card-text">
-            <strong>内置工具</strong>
-            ADB · iPerf3 · Aria2 · Ping · cURL
+            <strong>{{ $t('about.builtin.title') }}</strong>
+            {{ $t('about.builtin.desc') }}
           </div>
         </div>
         <div class="about-card">
           <div class="card-icon">💻</div>
           <div class="card-text">
-            <strong>当前平台</strong>
+            <strong>{{ $t('about.platform.title') }}</strong>
             {{ osInfo }}
           </div>
         </div>
@@ -64,49 +64,48 @@ onMounted(async () => {
 
       <!-- Tech Stack -->
       <div class="about-section">
-        <h3>技术栈</h3>
+        <h3>{{ $t('about.techstack.title') }}</h3>
         <div class="tech-grid">
           <div class="tech-item">
             <span class="tech-icon">⚡</span>
             <span class="tech-name">Tauri 2</span>
-            <span class="tech-desc">跨平台桌面框架</span>
+            <span class="tech-desc">{{ $t('about.tech.tauri') }}</span>
           </div>
           <div class="tech-item">
             <span class="tech-icon">💚</span>
             <span class="tech-name">Vue 3</span>
-            <span class="tech-desc">前端 UI 框架</span>
+            <span class="tech-desc">{{ $t('about.tech.vue') }}</span>
           </div>
           <div class="tech-item">
             <span class="tech-icon">📘</span>
             <span class="tech-name">TypeScript</span>
-            <span class="tech-desc">类型安全</span>
+            <span class="tech-desc">{{ $t('about.tech.typescript') }}</span>
           </div>
           <div class="tech-item">
             <span class="tech-icon">🦀</span>
             <span class="tech-name">Rust</span>
-            <span class="tech-desc">后端 & 系统调用</span>
+            <span class="tech-desc">{{ $t('about.tech.rust') }}</span>
           </div>
           <div class="tech-item">
             <span class="tech-icon">📦</span>
             <span class="tech-name">Pinia</span>
-            <span class="tech-desc">状态管理</span>
+            <span class="tech-desc">{{ $t('about.tech.pinia') }}</span>
           </div>
           <div class="tech-item">
             <span class="tech-icon">🧭</span>
             <span class="tech-name">Vue Router</span>
-            <span class="tech-desc">路由管理</span>
+            <span class="tech-desc">{{ $t('about.tech.router') }}</span>
           </div>
         </div>
       </div>
 
       <!-- License -->
       <div class="about-section">
-        <h3>开源许可</h3>
+        <h3>{{ $t('about.license.title') }}</h3>
         <div class="license-box">
-          <p>本软件使用 <strong>MIT 许可证</strong> 开源。</p>
+          <p>{{ $t('about.license.prefix') }} <strong>{{ $t('about.license.name') }}</strong> {{ $t('about.license.suffix') }}</p>
           <p class="license-note">
-            内置的 CLI 工具（adb、iperf3、aria2、curl 等）分别遵循其各自的开源许可证。
-            请在使用前查阅各工具的许可证条款。
+            {{ $t('about.license.note') }}
           </p>
         </div>
       </div>
@@ -115,7 +114,7 @@ onMounted(async () => {
       <div class="about-footer">
         <p>Copyright &copy; 2026 Shentongen</p>
         <p class="footer-links">
-          <span>Made with ❤️</span>
+          <span>{{ $t('about.footer.madeWith') }}</span>
         </p>
       </div>
     </div>

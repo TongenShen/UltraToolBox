@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAppStore, type ThemeMode } from '@/stores/app'
 import { useBinary } from '@/composables/useBinary'
 import { executeCommand } from '@/composables/useCommand'
 
+const { t } = useI18n()
 const appStore = useAppStore()
 const { binaries, checkAllBinaries } = useBinary()
 
@@ -14,6 +16,18 @@ const appVersion = ref('v0.1.0')
 function setTheme(mode: ThemeMode) {
   appStore.setTheme(mode)
   document.documentElement.setAttribute('data-theme', mode)
+}
+
+// ====== 语言切换 ======
+const localeOptions = [
+  { value: 'zh-CN' as const, label: '中文' },
+  { value: 'en-US' as const, label: 'English' },
+  { value: 'ja-JP' as const, label: '日本語' },
+  { value: 'ko-KR' as const, label: '한국어' }
+]
+
+function setLocale(locale: string) {
+  appStore.setLocale(locale as any)
 }
 
 // ====== 重新检测二进制 ======
@@ -29,11 +43,13 @@ async function getBinaryVersion(name: string) {
   if (result.code === 0) {
     binaryVersions.value[name] = result.stdout.trim()
   } else {
-    binaryVersions.value[name] = '无法获取版本信息'
+    binaryVersions.value[name] = t('binary.getVersionFailed')
   }
 }
 
 onMounted(async () => {
+  // 同步主题到 DOM
+  document.documentElement.setAttribute('data-theme', appStore.theme)
   await refreshBinaries()
   // Get detailed versions for installed binaries
   for (const bin of binaries.value) {
@@ -48,8 +64,8 @@ onMounted(async () => {
   <div class="tool-page">
     <div class="tool-container">
       <div class="tool-header">
-        <h2 class="tool-title">⚙️ 设置</h2>
-        <p class="tool-desc">应用偏好设置 · 主题切换 · 二进制管理</p>
+        <h2 class="tool-title">{{ $t('settings.title') }}</h2>
+        <p class="tool-desc">{{ $t('settings.subtitle') }}</p>
       </div>
 
       <!-- Section Tabs -->
@@ -58,18 +74,18 @@ onMounted(async () => {
           class="section-btn"
           :class="{ active: activeSection === 'general' }"
           @click="activeSection = 'general'"
-        >🎨 通用</button>
+        >{{ $t('settings.tab.general') }}</button>
         <button
           class="section-btn"
           :class="{ active: activeSection === 'binaries' }"
           @click="activeSection = 'binaries'"
-        >🔧 二进制工具</button>
+        >{{ $t('settings.tab.binaries') }}</button>
       </div>
 
       <!-- ====== 通用设置 ====== -->
       <div v-show="activeSection === 'general'" class="content-panel">
         <div class="panel-section">
-          <h3>🎨 主题设置</h3>
+          <h3>{{ $t('settings.theme.title') }}</h3>
           <div class="theme-options">
             <label
               class="theme-card"
@@ -81,7 +97,7 @@ onMounted(async () => {
                 <span class="preview-bar"></span>
                 <span class="preview-bar"></span>
               </span>
-              <span class="theme-name">🌙 深色模式</span>
+              <span class="theme-name">{{ $t('settings.theme.dark') }}</span>
             </label>
             <label
               class="theme-card"
@@ -93,25 +109,40 @@ onMounted(async () => {
                 <span class="preview-bar"></span>
                 <span class="preview-bar"></span>
               </span>
-              <span class="theme-name">☀️ 浅色模式</span>
+              <span class="theme-name">{{ $t('settings.theme.light') }}</span>
             </label>
           </div>
         </div>
 
         <div class="panel-section">
-          <h3>📱 应用信息</h3>
+          <h3>{{ $t('settings.language.title') }}</h3>
+          <div class="locale-options">
+            <button
+              v-for="opt in localeOptions"
+              :key="opt.value"
+              class="locale-btn"
+              :class="{ active: appStore.locale === opt.value }"
+              @click="setLocale(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3>{{ $t('settings.appInfo.title') }}</h3>
           <div class="info-list">
             <div class="info-row">
-              <span class="info-label">应用版本</span>
+              <span class="info-label">{{ $t('settings.appInfo.version') }}</span>
               <span class="info-value">{{ appVersion }}</span>
             </div>
             <div class="info-row">
-              <span class="info-label">当前主题</span>
-              <span class="info-value">{{ appStore.theme === 'dark' ? '深色模式' : '浅色模式' }}</span>
+              <span class="info-label">{{ $t('settings.appInfo.theme') }}</span>
+              <span class="info-value">{{ appStore.theme === 'dark' ? $t('settings.appInfo.theme.dark') : $t('settings.appInfo.theme.light') }}</span>
             </div>
             <div class="info-row">
-              <span class="info-label">侧边栏状态</span>
-              <span class="info-value">{{ appStore.sidebarCollapsed ? '收起' : '展开' }}</span>
+              <span class="info-label">{{ $t('settings.appInfo.sidebar') }}</span>
+              <span class="info-value">{{ appStore.sidebarCollapsed ? $t('settings.appInfo.sidebar.collapsed') : $t('settings.appInfo.sidebar.expanded') }}</span>
             </div>
           </div>
         </div>
@@ -121,9 +152,9 @@ onMounted(async () => {
       <div v-show="activeSection === 'binaries'" class="content-panel">
         <div class="panel-section">
           <div class="section-header">
-            <h3>🔧 已检测的二进制工具</h3>
+            <h3>{{ $t('settings.binaries.title') }}</h3>
             <button class="btn btn-sm" @click="refreshBinaries">
-              🔄 重新检测
+              {{ $t('settings.binaries.refresh') }}
             </button>
           </div>
           <div class="binary-grid">
@@ -137,7 +168,7 @@ onMounted(async () => {
                   {{ binary.checking ? '⏳' : binary.installed ? '✅' : '❌' }}
                 </span>
               </div>
-              <div class="binary-desc">{{ binary.description }}</div>
+              <div class="binary-desc">{{ $t(binary.descriptionKey) }}</div>
               <div class="binary-meta" v-if="binary.installed">
                 <span class="binary-version" v-if="binary.version">
                   {{ binary.version.substring(0, 60) }}
@@ -145,7 +176,7 @@ onMounted(async () => {
               </div>
               <div class="binary-meta" v-if="!binary.installed && binary.downloadUrl">
                 <a :href="binary.downloadUrl" target="_blank" class="download-link">
-                  📥 下载 ({{ binary.size }})
+                  {{ $t('settings.binaries.download', { size: $t(binary.sizeKey) }) }}
                 </a>
               </div>
             </div>
@@ -306,6 +337,34 @@ onMounted(async () => {
 .theme-name {
   font-size: 13px;
   font-weight: 600;
+}
+
+/* Locale Options */
+.locale-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.locale-btn {
+  padding: 10px 16px;
+  border: 2px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.locale-btn:hover {
+  border-color: var(--accent);
+}
+
+.locale-btn.active {
+  border-color: var(--accent);
+  background: rgba(124, 58, 237, 0.08);
 }
 
 /* Buttons */

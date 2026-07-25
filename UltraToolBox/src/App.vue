@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAppStore } from '@/stores/app'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 
 const route = useRoute()
+const appStore = useAppStore()
 const sidebarCollapsed = ref(false)
 
 const pageTitle = computed(() => {
@@ -13,6 +15,11 @@ const pageTitle = computed(() => {
 function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value
 }
+
+onMounted(() => {
+  // 应用保存的主题
+  document.documentElement.setAttribute('data-theme', appStore.theme)
+})
 </script>
 
 <template>
@@ -20,7 +27,7 @@ function toggleSidebar() {
     <AppSidebar :collapsed="sidebarCollapsed" @toggle="toggleSidebar" />
     <div class="main-area">
       <header class="app-header">
-        <button class="menu-btn" @click="toggleSidebar" title="切换侧边栏">
+        <button class="menu-btn" @click="toggleSidebar" :title="$t('app.toggleSidebar')">
           <span class="menu-icon">☰</span>
         </button>
         <h2 class="page-title">{{ pageTitle }}</h2>
@@ -29,7 +36,7 @@ function toggleSidebar() {
         <router-view />
       </main>
       <footer class="status-bar">
-        <span class="status-indicator">● 空闲</span>
+        <span class="status-indicator">{{ $t('app.status.idle') }}</span>
         <span class="status-version">v0.1.0</span>
       </footer>
     </div>
@@ -61,6 +68,19 @@ function toggleSidebar() {
   --success: #22c55e;
   --error: #ef4444;
   --warning: #f59e0b;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f8f9fa;
+  --bg-sidebar: #ffffff;
+  --bg-header: #ffffff;
+  --bg-status: #ffffff;
+  --bg-card: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --border: #e5e7eb;
 }
 
 html, body {

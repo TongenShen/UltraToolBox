@@ -92,24 +92,24 @@ function formatTimestamp(): string {
           :style="{ backgroundColor: statusColors[props.status || 'idle'] }"
         ></span>
         <span class="status-text">
-          {{ statusLabels[props.status || 'idle'] }}
+          {{ $t('log.status.' + (props.status || 'idle')) }}
         </span>
         <span class="line-count" v-if="lines.length > 0">
-          ({{ lines.length }} 行)
+          ({{ $t('log.lines', { n: lines.length }) }})
         </span>
       </div>
       <div class="log-actions">
         <label class="auto-scroll-label">
           <input type="checkbox" v-model="autoScroll" />
-          自动滚动
+          {{ $t('log.autoScroll') }}
         </label>
-        <button class="log-btn" @click="copyContent" title="复制输出">
+        <button class="log-btn" @click="copyContent" :title="$t('log.copy')">
           📋
         </button>
-        <button class="log-btn" @click="scrollToBottom" title="滚动到底部">
+        <button class="log-btn" @click="scrollToBottom" :title="$t('log.scrollToBottom')">
           ⬇️
         </button>
-        <button class="log-btn" @click="$emit('clear')" title="清空">
+        <button class="log-btn" @click="$emit('clear')" :title="$t('log.clear')">
           🗑️
         </button>
       </div>
@@ -120,16 +120,16 @@ function formatTimestamp(): string {
       @scroll="handleScroll"
     >
       <div v-if="lines.length === 0" class="log-empty">
-        暂无输出，运行命令后将在此显示
+        {{ $t('log.empty') }}
       </div>
       <div
         v-for="(line, index) in displayLines"
         :key="index"
         class="log-line"
         :class="{
-          'log-error': line.startsWith('[错误]'),
-          'log-warn': line.startsWith('[警告]'),
-          'log-info': line.startsWith('[信息]')
+          'log-error': line.startsWith($t('log.prefix.error')),
+          'log-warn': line.startsWith($t('log.prefix.warn')),
+          'log-info': line.startsWith($t('log.prefix.info'))
         }"
       >
         <span class="line-num" v-if="showLineNumbers">{{ index + 1 }}</span>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { executeCommand, spawnCommand, type CommandEvent } from '@/composables/useCommand'
 import { checkCommandExists } from '@/composables/useCommand'
 import LogPanel from '@/components/common/LogPanel.vue'
+
+const { t } = useI18n()
 
 const activeTab = ref<'ping' | 'iperf3' | 'curl'>('ping')
 
@@ -29,7 +32,7 @@ async function runPing() {
   if (!pingTarget.value.trim()) return
   pinging.value = true
   logStatus.value = 'running'
-  logLines.value.push(`> Ping ${pingTarget.value} (${pingCount.value} 次)...`)
+  logLines.value.push(t('network.ping.running', { target: pingTarget.value, count: pingCount.value }))
 
   const { kill } = await spawnCommand(
     `ping -c ${pingCount.value} "${pingTarget.value}" 2>&1`,
@@ -58,12 +61,17 @@ async function runIperf() {
   let cmd: string
   if (iperfMode.value === 'server') {
     cmd = `iperf3 -s -p ${iperfPort.value} 2>&1`
-    logLines.value.push(`> 启动 iperf3 服务端 (端口 ${iperfPort.value})...`)
+    logLines.value.push(t('network.iperf3.serverRunning', { port: iperfPort.value }))
   } else {
     cmd = `iperf3 -c "${iperfServer.value}" -p ${iperfPort.value} -t ${iperfDuration.value}`
     if (iperfReverse.value) cmd += ' -R'
     cmd += ' 2>&1'
-    logLines.value.push(`> iperf3 测速: ${iperfServer.value}:${iperfPort.value} (${iperfDuration.value}s)${iperfReverse.value ? ' [反向]' : ''}...`)
+    logLines.value.push(t('network.iperf3.running', {
+      server: iperfServer.value,
+      port: iperfPort.value,
+      duration: iperfDuration.value,
+      reverse: iperfReverse.value ? t('network.iperf3.reverseTag') : ''
+    }))
   }
 
   const { kill } = await spawnCommand(cmd, (event: CommandEvent) => {
@@ -81,7 +89,7 @@ async function stopIperf() {
     await runningKill()
     runningKill = null
     logStatus.value = 'completed'
-    logLines.value.push('⏹️ 已停止 iperf3')
+    logLines.value.push(t('network.iperf3.stopped'))
   }
 }
 
@@ -137,7 +145,7 @@ async function stopCommand() {
     await runningKill()
     runningKill = null
     logStatus.value = 'completed'
-    logLines.value.push('⏹️ 已停止')
+    logLines.value.push(t('network.stopped'))
   }
 }
 
@@ -170,8 +178,8 @@ onMounted(async () => {
     <div class="tool-container">
       <!-- Header -->
       <div class="tool-header">
-        <h2 class="tool-title">🌐 网络工具</h2>
-        <p class="tool-desc">Ping · iPerf3 测速 · cURL HTTP 请求</p>
+        <h2 class="tool-title">{{ $t('network.title') }}</h2>
+        <p class="tool-desc">{{ $t('network.subtitle') }}</p>
       </div>
 
       <!-- Tab Bar -->
@@ -182,9 +190,9 @@ onMounted(async () => {
           @click="switchTab('ping')"
         >
           <span class="tab-icon">📶</span>
-          <span class="tab-label">Ping</span>
+          <span class="tab-label">{{ $t('network.tab.ping') }}</span>
           <span class="tab-badge" :class="toolsAvailable.ping ? 'ok' : 'no'">
-            {{ toolsAvailable.ping ? '就绪' : '不可用' }}
+            {{ toolsAvailable.ping ? $t('common.ready') : $t('common.unavailable') }}
           </span>
         </button>
         <button
@@ -193,9 +201,9 @@ onMounted(async () => {
           @click="switchTab('iperf3')"
         >
           <span class="tab-icon">🚀</span>
-          <span class="tab-label">iPerf3</span>
+          <span class="tab-label">{{ $t('network.tab.iperf3') }}</span>
           <span class="tab-badge" :class="toolsAvailable.iperf3 ? 'ok' : 'no'">
-            {{ toolsAvailable.iperf3 ? '就绪' : '不可用' }}
+            {{ toolsAvailable.iperf3 ? $t('common.ready') : $t('common.unavailable') }}
           </span>
         </button>
         <button
@@ -204,9 +212,9 @@ onMounted(async () => {
           @click="switchTab('curl')"
         >
           <span class="tab-icon">🔗</span>
-          <span class="tab-label">cURL</span>
+          <span class="tab-label">{{ $t('network.tab.curl') }}</span>
           <span class="tab-badge" :class="toolsAvailable.curl ? 'ok' : 'no'">
-            {{ toolsAvailable.curl ? '就绪' : '不可用' }}
+            {{ toolsAvailable.curl ? $t('common.ready') : $t('common.unavailable') }}
           </span>
         </button>
       </div>
@@ -215,17 +223,17 @@ onMounted(async () => {
         <!-- ====== PING ====== -->
         <div v-show="activeTab === 'ping'" class="content-panel">
           <div class="panel-section">
-            <h3>📶 网络连通性测试</h3>
+            <h3>{{ $t('network.ping.title') }}</h3>
             <div class="form-row">
               <input
                 v-model="pingTarget"
-                placeholder="目标地址 (IP 或域名)"
+                :placeholder="$t('network.ping.target')"
                 class="input"
                 :disabled="pinging"
               />
               <input
                 v-model="pingCount"
-                placeholder="次数"
+                :placeholder="$t('network.ping.count')"
                 class="input"
                 style="width: 70px; text-align: center"
                 :disabled="pinging"
@@ -235,47 +243,47 @@ onMounted(async () => {
                 @click="runPing"
                 :disabled="pinging || !pingTarget.trim() || !toolsAvailable.ping"
               >
-                {{ pinging ? '⏳ Ping 中...' : '▶️ 开始 Ping' }}
+                {{ pinging ? $t('network.ping.pinging') : $t('network.ping.start') }}
               </button>
               <button
                 v-if="pinging"
                 class="btn btn-danger"
                 @click="stopCommand"
-              >⏹️ 停止</button>
+              >{{ $t('network.ping.stop') }}</button>
             </div>
-            <div class="hint" v-if="!toolsAvailable.ping">⚠️ ping 命令在当前系统不可用</div>
+            <div class="hint" v-if="!toolsAvailable.ping">{{ $t('network.ping.unavailable') }}</div>
           </div>
         </div>
 
         <!-- ====== IPERF3 ====== -->
         <div v-show="activeTab === 'iperf3'" class="content-panel">
           <div class="panel-section">
-            <h3>🚀 iPerf3 网络带宽测试</h3>
+            <h3>{{ $t('network.iperf3.title') }}</h3>
 
             <div class="mode-toggle">
               <button
                 class="mode-btn"
                 :class="{ active: iperfMode === 'client' }"
                 @click="iperfMode = 'client'"
-              >📤 客户端模式</button>
+              >📤 {{ $t('network.iperf3.mode.client') }}</button>
               <button
                 class="mode-btn"
                 :class="{ active: iperfMode === 'server' }"
                 @click="iperfMode = 'server'"
-              >📥 服务端模式</button>
+              >📥 {{ $t('network.iperf3.mode.server') }}</button>
             </div>
 
             <div v-if="iperfMode === 'client'" class="form-group">
               <div class="form-row">
                 <input
                   v-model="iperfServer"
-                  placeholder="服务器地址"
+                  :placeholder="$t('network.iperf3.server')"
                   class="input"
                   :disabled="iperfRunning"
                 />
                 <input
                   v-model="iperfPort"
-                  placeholder="端口"
+                  :placeholder="$t('network.iperf3.port')"
                   class="input"
                   style="width: 80px; text-align: center"
                   :disabled="iperfRunning"
@@ -284,14 +292,14 @@ onMounted(async () => {
               <div class="form-row" style="margin-top: 8px">
                 <input
                   v-model="iperfDuration"
-                  placeholder="时长(秒)"
+                  :placeholder="$t('network.iperf3.duration')"
                   class="input"
                   style="width: 100px"
                   :disabled="iperfRunning"
                 />
                 <label class="checkbox-label">
                   <input type="checkbox" v-model="iperfReverse" :disabled="iperfRunning" />
-                  反向模式 (-R)
+                  {{ $t('network.iperf3.reverse') }}
                 </label>
               </div>
               <div class="form-actions" style="margin-top: 8px">
@@ -300,13 +308,13 @@ onMounted(async () => {
                   @click="runIperf"
                   :disabled="iperfRunning || !toolsAvailable.iperf3 || !iperfServer.trim()"
                 >
-                  {{ iperfRunning ? '⏳ 测速中...' : '▶️ 开始测速' }}
+                  {{ iperfRunning ? $t('common.loading') : $t('network.iperf3.start') }}
                 </button>
                 <button
                   v-if="iperfRunning"
                   class="btn btn-danger"
                   @click="stopIperf"
-                >⏹️ 停止</button>
+                >{{ $t('network.iperf3.stop') }}</button>
               </div>
             </div>
 
@@ -314,7 +322,7 @@ onMounted(async () => {
               <div class="form-row">
                 <input
                   v-model="iperfPort"
-                  placeholder="监听端口"
+                  :placeholder="$t('network.iperf3.port')"
                   class="input"
                   style="width: 120px"
                   :disabled="iperfRunning"
@@ -326,13 +334,13 @@ onMounted(async () => {
                   @click="runIperf"
                   :disabled="iperfRunning || !toolsAvailable.iperf3"
                 >
-                  {{ iperfRunning ? '⏳ 运行中...' : '▶️ 启动服务端' }}
+                  {{ iperfRunning ? $t('common.loading') : $t('network.iperf3.startServer') }}
                 </button>
                 <button
                   v-if="iperfRunning"
                   class="btn btn-danger"
                   @click="stopIperf"
-                >⏹️ 停止</button>
+                >{{ $t('network.iperf3.stop') }}</button>
               </div>
             </div>
 
@@ -346,7 +354,7 @@ onMounted(async () => {
         <!-- ====== CURL ====== -->
         <div v-show="activeTab === 'curl'" class="content-panel">
           <div class="panel-section">
-            <h3>🔗 HTTP 请求工具</h3>
+            <h3>{{ $t('network.curl.title') }}</h3>
 
             <div class="form-group">
               <div class="form-row">
@@ -355,14 +363,14 @@ onMounted(async () => {
                 </select>
                 <input
                   v-model="curlUrl"
-                  placeholder="请求 URL (https://...)"
+                  :placeholder="$t('network.curl.url')"
                   class="input"
                   :disabled="curlRunning"
                 />
               </div>
 
               <div class="form-field" style="margin-top: 8px">
-                <label class="field-label">请求头 (每行一个)</label>
+                <label class="field-label">{{ $t('network.curl.headers') }}</label>
                 <textarea
                   v-model="curlHeaders"
                   placeholder="Content-Type: application/json&#10;Authorization: Bearer token"
@@ -373,7 +381,7 @@ onMounted(async () => {
               </div>
 
               <div class="form-field" style="margin-top: 8px" v-if="['POST', 'PUT', 'PATCH'].includes(curlMethod)">
-                <label class="field-label">请求体</label>
+                <label class="field-label">{{ $t('network.curl.body') }}</label>
                 <textarea
                   v-model="curlBody"
                   placeholder='{"key": "value"}'
@@ -386,7 +394,7 @@ onMounted(async () => {
               <div class="form-row" style="margin-top: 8px">
                 <input
                   v-model="curlTimeout"
-                  placeholder="超时(秒)"
+                  :placeholder="$t('network.curl.timeout')"
                   class="input"
                   style="width: 80px"
                   :disabled="curlRunning"
@@ -396,13 +404,13 @@ onMounted(async () => {
                   @click="runCurl"
                   :disabled="curlRunning || !curlUrl.trim() || !toolsAvailable.curl"
                 >
-                  {{ curlRunning ? '⏳ 请求中...' : '▶️ 发送请求' }}
+                  {{ curlRunning ? $t('common.loading') : $t('network.curl.send') }}
                 </button>
                 <button
                   v-if="curlRunning"
                   class="btn btn-danger"
                   @click="stopCommand"
-                >⏹️ 停止</button>
+                >{{ $t('common.stop') }}</button>
               </div>
             </div>
           </div>
@@ -411,12 +419,12 @@ onMounted(async () => {
         <!-- ====== 日志面板 ====== -->
         <div class="panel-section">
           <div class="section-header">
-            <h3>📋 输出日志</h3>
+            <h3>{{ $t('terminal.log.title') }}</h3>
             <button
               v-if="logStatus === 'running'"
               class="btn btn-sm btn-danger"
               @click="stopCommand"
-            >⏹️ 停止</button>
+            >{{ $t('common.stop') }}</button>
           </div>
           <LogPanel
             :lines="logLines"

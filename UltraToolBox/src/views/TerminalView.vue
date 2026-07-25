@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { executeCommand } from '@/composables/useCommand'
+
+const { t } = useI18n()
 
 interface PlatformInfo {
   os: string
@@ -10,9 +13,9 @@ interface PlatformInfo {
 }
 
 const platformInfo = ref<PlatformInfo>({
-  os: '检测中...',
-  shell: '检测中...',
-  defaultTerminal: '检测中...',
+  os: t('common.detecting'),
+  shell: t('common.detecting'),
+  defaultTerminal: t('common.detecting'),
   icon: '💻'
 })
 
@@ -50,15 +53,15 @@ async function detectPlatform() {
 
 async function openTerminal(terminalName: string, command: string) {
   terminalStatus.value = 'running'
-  terminalOutput.value.push(`> 正在打开 ${terminalName}...`)
+  terminalOutput.value.push('> ' + t('terminal.opening', { name: terminalName }))
 
   const result = await executeCommand(command)
 
   if (result.code === 0) {
-    terminalOutput.value.push(`✅ ${terminalName} 已启动`)
+    terminalOutput.value.push(t('terminal.started', { name: terminalName }))
     terminalStatus.value = 'completed'
   } else {
-    terminalOutput.value.push(`❌ 启动失败: ${result.stderr || result.stdout}`)
+    terminalOutput.value.push(t('terminal.failed', { error: result.stderr || result.stdout }))
     terminalStatus.value = 'error'
   }
 }
@@ -102,8 +105,8 @@ onMounted(() => {
     <div class="tool-container">
       <!-- Header -->
       <div class="tool-header">
-        <h2 class="tool-title">💻 终端快捷入口</h2>
-        <p class="tool-desc">一键打开系统终端，无需离开应用</p>
+        <h2 class="tool-title">{{ $t('terminal.title') }}</h2>
+        <p class="tool-desc">{{ $t('terminal.subtitle') }}</p>
       </div>
 
       <!-- Platform Info Card -->
@@ -111,15 +114,15 @@ onMounted(() => {
         <div class="platform-icon">{{ platformInfo.icon }}</div>
         <div class="platform-details">
           <div class="platform-row">
-            <span class="label">操作系统</span>
+            <span class="label">{{ $t('terminal.platform.os') }}</span>
             <span class="value">{{ platformInfo.os }}</span>
           </div>
           <div class="platform-row">
-            <span class="label">默认 Shell</span>
+            <span class="label">{{ $t('terminal.platform.shell') }}</span>
             <span class="value">{{ platformInfo.shell }}</span>
           </div>
           <div class="platform-row">
-            <span class="label">默认终端</span>
+            <span class="label">{{ $t('terminal.platform.terminal') }}</span>
             <span class="value">{{ platformInfo.defaultTerminal }}</span>
           </div>
         </div>
@@ -127,11 +130,11 @@ onMounted(() => {
 
       <!-- Quick Launch Buttons -->
       <div class="section">
-        <h3 class="section-title">🚀 快速启动</h3>
+        <h3 class="section-title">{{ $t('terminal.quickLaunch.title') }}</h3>
         <div class="button-grid">
           <button class="action-btn primary" @click="openDefaultTerminal">
             <span class="btn-icon">🖥️</span>
-            <span class="btn-label">默认终端</span>
+            <span class="btn-label">{{ $t('terminal.launch.default') }}</span>
             <span class="btn-desc">{{ platformInfo.defaultTerminal }}</span>
           </button>
 
@@ -141,8 +144,8 @@ onMounted(() => {
             @click="openITerm2"
           >
             <span class="btn-icon">⬛</span>
-            <span class="btn-label">iTerm2</span>
-            <span class="btn-desc">如已安装</span>
+            <span class="btn-label">{{ $t('terminal.launch.iterm2') }}</span>
+            <span class="btn-desc">{{ $t('terminal.launch.iterm2.hint') }}</span>
           </button>
 
           <button
@@ -151,18 +154,18 @@ onMounted(() => {
             @click="openPowerShell"
           >
             <span class="btn-icon">⚡</span>
-            <span class="btn-label">PowerShell</span>
-            <span class="btn-desc">Windows 现代终端</span>
+            <span class="btn-label">{{ $t('terminal.launch.powershell') }}</span>
+            <span class="btn-desc">{{ $t('terminal.launch.powershell.hint') }}</span>
           </button>
         </div>
       </div>
 
       <!-- Output Log -->
       <div class="section">
-        <h3 class="section-title">📋 操作日志</h3>
+        <h3 class="section-title">{{ $t('terminal.log.title') }}</h3>
         <div class="log-box">
           <div v-if="terminalOutput.length === 0" class="log-empty">
-            点击上方的按钮打开终端，操作日志将在此显示
+            {{ $t('terminal.log.empty') }}
           </div>
           <div
             v-for="(line, index) in terminalOutput"
@@ -179,9 +182,9 @@ onMounted(() => {
         </div>
         <div class="log-actions" v-if="terminalOutput.length > 0">
           <span class="status-badge" :class="terminalStatus">
-            {{ terminalStatus === 'idle' ? '空闲' : terminalStatus === 'running' ? '运行中' : terminalStatus === 'completed' ? '已完成' : '错误' }}
+            {{ terminalStatus === 'idle' ? $t('common.idle') : terminalStatus === 'running' ? $t('common.running') : terminalStatus === 'completed' ? $t('common.completed') : $t('common.error') }}
           </span>
-          <button class="text-btn" @click="clearOutput">清空日志</button>
+          <button class="text-btn" @click="clearOutput">{{ $t('terminal.log.clear') }}</button>
         </div>
       </div>
     </div>
