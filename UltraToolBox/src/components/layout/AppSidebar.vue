@@ -101,7 +101,6 @@ function handleSystemClick(item: ToolItem) {
     <!-- Search -->
     <div class="sidebar-search" v-if="!collapsed">
       <div class="search-input-wrapper">
-        <span class="search-icon">🔍</span>
         <input
           v-model="searchQuery"
           type="text"
