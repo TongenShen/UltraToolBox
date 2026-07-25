@@ -93,9 +93,6 @@ function handleSystemClick(item: ToolItem) {
       <div class="logo logo-small" v-else>
         <span class="logo-icon">🔧</span>
       </div>
-      <button class="collapse-btn" @click="emit('toggle')" :title="$t('common.collapse')">
-        <span class="collapse-icon">{{ collapsed ? '▶' : '◀' }}</span>
-      </button>
     </div>
 
     <!-- Search -->
@@ -272,26 +269,6 @@ function handleSystemClick(item: ToolItem) {
   font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
-}
-
-.collapse-btn {
-  border: none;
-  background: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 10px;
-  padding: 4px;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-
-.collapse-btn:hover {
-  color: var(--text-primary);
-  background: var(--bg-card);
-}
-
-.collapse-icon {
-  display: block;
 }
 
 /* Search */
