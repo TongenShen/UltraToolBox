@@ -1,0 +1,38 @@
+# 前端构建产物
+dist
+dist-ssr
+
+# 依赖
+node_modules
+
+# 本地环境文件
+*.local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 日志
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# macOS系统垃圾文件
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# VSCode 本地配置（可选）
+.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Tauri 构建输出（重点！）
+src-tauri/target
+src-tauri/.env
+src-tauri/*.log
