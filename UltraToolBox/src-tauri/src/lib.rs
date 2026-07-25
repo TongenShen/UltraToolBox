@@ -75,9 +75,9 @@ fn parse_power_info() -> PowerInfo {
         // 解析电源来源
         if batt.contains("AC Power") || batt.contains("Battery Power") {
             if batt.contains("AC Power") {
-                info.power_source = Some("AC 电源".to_string());
+                info.power_source = Some("AC Power".to_string());
             } else {
-                info.power_source = Some("电池".to_string());
+                info.power_source = Some("Battery Power".to_string());
             }
         }
         // 解析电池百分比和状态
@@ -98,17 +98,19 @@ fn parse_power_info() -> PowerInfo {
                             }
                         }
                     }
-                    // 提取状态 (charging/discharging/finishing charge/AC attached)
+                    // 提取状态 (charging/discharging/finishing charge/charged)
                     let state = after.trim().split(';').next().unwrap_or("").trim().to_string();
                     if !state.is_empty() {
                         info.battery_state = Some(state);
                     }
-                    // 提取剩余时间
-                    if after.contains("remaining") {
-                        for part in after.split(';') {
-                            let part = part.trim();
-                            if part.contains("remaining") && !part.contains("no") {
-                                info.battery_time_remaining = Some(part.to_string());
+                    // 提取剩余时间 (只取时间部分, 如 "4:32")
+                    for part in after.split(';') {
+                        let part = part.trim();
+                        // 匹配 "4:32 remaining" 或 "0:00 remaining"
+                        if part.contains(":") && part.contains("remaining") {
+                            let time_part = part.split_whitespace().next().unwrap_or("").to_string();
+                            if !time_part.is_empty() && time_part != "0:00" {
+                                info.battery_time_remaining = Some(time_part);
                             }
                         }
                     }

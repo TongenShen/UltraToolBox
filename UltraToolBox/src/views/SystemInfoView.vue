@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
+import { useI18n } from 'vue-i18n'
 import { APP_VERSION } from '@/config/app'
 import {
   Cpu, HardDrive, Monitor, Server, Clock,
   Disc, Loader, Info, BarChart3, RefreshCw,
-  Battery, Zap, Thermometer
+  Battery, Zap, Thermometer, Activity
 } from '@lucide/vue'
+
+const { t } = useI18n()
 
 interface DiskInfo {
   mount_point: string
@@ -57,7 +60,34 @@ const refreshing = ref(false)
 const error = ref('')
 const info = ref<SystemInfo | null>(null)
 const powerInfo = ref<PowerInfo | null>(null)
+const monitoring = ref(false)
+let monitorTimer: ReturnType<typeof setInterval> | null = null
 
+// ---- 翻译函数 ----
+function translatePowerSource(source: string): string {
+  const map: Record<string, string> = {
+    'AC Power': t('systemInfo.power.source.ac'),
+    'Battery Power': t('systemInfo.power.source.battery'),
+  }
+  return map[source] || source
+}
+
+function translateBatteryState(state: string): string {
+  const map: Record<string, string> = {
+    'charging': t('systemInfo.power.state.charging'),
+    'discharging': t('systemInfo.power.state.discharging'),
+    'charged': t('systemInfo.power.state.charged'),
+    'finishing charge': t('systemInfo.power.state.finishing'),
+    'AC attached': t('systemInfo.power.state.acAttached'),
+  }
+  return map[state] || state
+}
+
+function formatTimeRemaining(time: string): string {
+  return `${time} ${t('systemInfo.power.remaining')}`
+}
+
+// ---- 格式化函数 ----
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -71,9 +101,9 @@ function formatUptime(seconds: number): string {
   const hours = Math.floor((seconds % 86400) / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const parts: string[] = []
-  if (days > 0) parts.push(`${days}天`)
-  if (hours > 0) parts.push(`${hours}小时`)
-  parts.push(`${minutes}分钟`)
+  if (days > 0) parts.push(`${days}${t('systemInfo.day')}`)
+  if (hours > 0) parts.push(`${hours}${t('systemInfo.hour')}`)
+  parts.push(`${minutes}${t('systemInfo.minute')}`)
   return parts.join(' ')
 }
 
@@ -104,6 +134,7 @@ function diskUsed(disk: DiskInfo): string {
   return formatBytes(disk.total_space - disk.available_space)
 }
 
+// ---- 数据获取 ----
 async function fetchSystemInfo() {
   try {
     const [sysResult, powerResult] = await Promise.all([
@@ -128,9 +159,46 @@ async function refresh() {
   refreshing.value = false
 }
 
+// ---- 实时监控 ----
+async function fetchPowerOnly() {
+  try {
+    const result = await invoke<PowerInfo>('get_power_info')
+    if (result.available) {
+      powerInfo.value = result
+    }
+  } catch {
+    // 静默失败，不中断监控
+  }
+}
+
+function toggleMonitoring() {
+  if (monitoring.value) {
+    // 停止监控
+    if (monitorTimer !== null) {
+      clearInterval(monitorTimer)
+      monitorTimer = null
+    }
+    monitoring.value = false
+  } else {
+    // 开始监控
+    monitoring.value = true
+    // 立即刷新一次
+    fetchPowerOnly()
+    // 每 2 秒轮询
+    monitorTimer = setInterval(fetchPowerOnly, 2000)
+  }
+}
+
 onMounted(async () => {
   await fetchSystemInfo()
   loading.value = false
+})
+
+onUnmounted(() => {
+  if (monitorTimer !== null) {
+    clearInterval(monitorTimer)
+    monitorTimer = null
+  }
 })
 </script>
 
@@ -247,14 +315,25 @@ onMounted(async () => {
       <!-- 功率信息 (macOS 专用) -->
       <div class="info-card full-width" v-if="powerInfo">
         <div class="card-header">
-          <Zap :size="20" />
-          <span>{{ $t('systemInfo.power.title') }}</span>
+          <div class="card-header-left">
+            <Zap :size="20" />
+            <span>{{ $t('systemInfo.power.title') }}</span>
+          </div>
+          <button
+            class="monitor-btn"
+            :class="{ active: monitoring }"
+            @click="toggleMonitoring"
+            :title="monitoring ? $t('systemInfo.power.stopMonitor') : $t('systemInfo.power.startMonitor')"
+          >
+            <Activity :size="16" :class="{ 'pulse': monitoring }" />
+            <span>{{ monitoring ? $t('systemInfo.power.monitoring') : $t('systemInfo.power.monitor') }}</span>
+          </button>
         </div>
         <div class="card-body">
           <div class="power-grid">
             <div class="power-item" v-if="powerInfo.power_source">
               <span class="power-label"><Battery :size="14" /> {{ $t('systemInfo.power.source') }}</span>
-              <span class="power-value">{{ powerInfo.power_source }}</span>
+              <span class="power-value">{{ translatePowerSource(powerInfo.power_source) }}</span>
             </div>
             <div class="power-item" v-if="powerInfo.battery_percent !== null">
               <span class="power-label">{{ $t('systemInfo.power.batteryPercent') }}</span>
@@ -262,11 +341,11 @@ onMounted(async () => {
             </div>
             <div class="power-item" v-if="powerInfo.battery_state">
               <span class="power-label">{{ $t('systemInfo.power.batteryState') }}</span>
-              <span class="power-value">{{ powerInfo.battery_state }}</span>
+              <span class="power-value">{{ translateBatteryState(powerInfo.battery_state) }}</span>
             </div>
             <div class="power-item" v-if="powerInfo.battery_time_remaining">
               <span class="power-label">{{ $t('systemInfo.power.timeRemaining') }}</span>
-              <span class="power-value">{{ powerInfo.battery_time_remaining }}</span>
+              <span class="power-value">{{ formatTimeRemaining(powerInfo.battery_time_remaining) }}</span>
             </div>
             <div class="power-item" v-if="powerInfo.thermal_level">
               <span class="power-label"><Thermometer :size="14" /> {{ $t('systemInfo.power.thermal') }}</span>
@@ -487,6 +566,7 @@ onMounted(async () => {
 .card-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   font-size: 15px;
   font-weight: 600;
@@ -494,6 +574,12 @@ onMounted(async () => {
   border-bottom: 1px solid var(--border);
   margin-bottom: 12px;
   color: var(--text-primary);
+}
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .card-body {
@@ -643,5 +729,41 @@ onMounted(async () => {
 
 .power-value.thermal-hot {
   color: #ef4444;
+}
+
+/* 实时监控按钮 */
+.monitor-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.monitor-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.monitor-btn.active {
+  color: #22c55e;
+  border-color: #22c55e;
+  background: color-mix(in srgb, #22c55e 10%, var(--bg-primary));
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 </style>
