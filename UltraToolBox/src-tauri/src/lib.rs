@@ -230,12 +230,11 @@ fn parse_pm_line(line: &str, info: &mut PowerInfo) {
         info.gpu_power_mw = parse_power_value(val.trim());
     } else if let Some(val) = trimmed.strip_prefix("Combined Power:") {
         info.combined_power_mw = parse_power_value(val.trim());
+        return; // 有 Combined Power 行，不需要手动计算
     }
-    // 如果 Combined Power 没解析到，但 CPU 和 GPU 都有，则手动计算
-    if info.combined_power_mw.is_none() {
-        if let (Some(cpu), Some(gpu)) = (info.cpu_power_mw, info.gpu_power_mw) {
-            info.combined_power_mw = Some(cpu + gpu);
-        }
+    // 每次 CPU 或 GPU 更新后，都重新计算总功率（保证使用最新值）
+    if let (Some(cpu), Some(gpu)) = (info.cpu_power_mw, info.gpu_power_mw) {
+        info.combined_power_mw = Some(cpu + gpu);
     }
 }
 
