@@ -3,12 +3,16 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { executeCommand, spawnCommand, type CommandEvent } from '@/composables/useCommand'
 import { checkCommandExists } from '@/composables/useCommand'
+import { useNetworkInfo } from '@/composables/useNetworkInfo'
 import LogPanel from '@/components/common/LogPanel.vue'
 import TooltipInput from '@/components/common/TooltipInput.vue'
 
 const { t } = useI18n()
 
 const activeTab = ref<'ping' | 'iperf3' | 'curl'>('ping')
+
+// ====== 网络信息 ======
+const { info: netInfo, loading: netInfoLoading, error: netInfoError, fetchInfo: fetchNetInfo } = useNetworkInfo()
 
 // ====== 工具可用性 ======
 const toolsAvailable = ref({
@@ -175,6 +179,7 @@ function switchTab(tab: 'ping' | 'iperf3' | 'curl') {
 }
 
 onMounted(async () => {
+  await fetchNetInfo()
   toolsChecking.value = true
   toolsAvailable.value.ping = await checkCommandExists('ping')
   toolsAvailable.value.curl = await checkCommandExists('curl')
@@ -190,6 +195,46 @@ onMounted(async () => {
       <div class="tool-header">
         <h2 class="tool-title">{{ $t('network.title') }}</h2>
         <p class="tool-desc">{{ $t('network.subtitle') }}</p>
+      </div>
+
+      <!-- Network Info Card -->
+      <div class="netinfo-card">
+        <div class="netinfo-loading" v-if="netInfoLoading">
+          <span class="netinfo-spinner">⏳</span> {{ $t('common.loading') }}
+        </div>
+        <div class="netinfo-error" v-else-if="netInfoError">
+          ⚠️ {{ netInfoError }}
+        </div>
+        <div class="netinfo-grid" v-else>
+          <div class="netinfo-item">
+            <span class="netinfo-label">{{ $t('network.info.ipv4') }}</span>
+            <span class="netinfo-value">{{ netInfo.ipv4 || $t('common.unavailable') }}</span>
+          </div>
+          <div class="netinfo-item">
+            <span class="netinfo-label">{{ $t('network.info.gateway') }}</span>
+            <span class="netinfo-value">{{ netInfo.gateway || $t('common.unavailable') }}</span>
+          </div>
+          <div class="netinfo-item">
+            <span class="netinfo-label">{{ $t('network.info.dns') }}</span>
+            <span class="netinfo-value">{{ netInfo.dnsServers.length ? netInfo.dnsServers.join(', ') : $t('common.unavailable') }}</span>
+          </div>
+          <div class="netinfo-item">
+            <span class="netinfo-label">{{ $t('network.info.dhcp') }}</span>
+            <span class="netinfo-value">{{ netInfo.dhcpServer || $t('common.unavailable') }}</span>
+          </div>
+          <div class="netinfo-item">
+            <span class="netinfo-label">{{ $t('network.info.speed') }}</span>
+            <span class="netinfo-value">{{ netInfo.speed || $t('common.unavailable') }}</span>
+          </div>
+          <div class="netinfo-item">
+            <span class="netinfo-label">{{ $t('network.info.interface') }}</span>
+            <span class="netinfo-value">{{ netInfo.interfaceName || $t('common.unavailable') }}</span>
+          </div>
+          <div class="netinfo-item" v-if="netInfo.ipv6">
+            <span class="netinfo-label">{{ $t('network.info.ipv6') }}</span>
+            <span class="netinfo-value netinfo-value-sm">{{ netInfo.ipv6 }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- Tab Bar -->
@@ -495,6 +540,58 @@ onMounted(async () => {
 .tool-desc {
   color: var(--text-secondary);
   font-size: 14px;
+}
+
+/* Network Info Card */
+.netinfo-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+
+.netinfo-loading,
+.netinfo-error {
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.netinfo-spinner {
+  margin-right: 4px;
+}
+
+.netinfo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+
+.netinfo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.netinfo-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 600;
+}
+
+.netinfo-value {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.netinfo-value-sm {
+  font-size: 12px;
 }
 
 /* Tab Bar */

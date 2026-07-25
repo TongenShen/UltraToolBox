@@ -165,6 +165,14 @@ export default {
   'network.curl.tooltip.timeout': 'Request timeout in seconds. Connection will be aborted if no response is received within this time. Default 30s',
   'network.stopped': '⏹️ Stopped',
   'network.clearLog': 'Clear Log',
+  'network.info.title': 'Network Info',
+  'network.info.interface': 'Interface',
+  'network.info.ipv4': 'IPv4 Address',
+  'network.info.ipv6': 'IPv6 Address',
+  'network.info.dns': 'DNS Server',
+  'network.info.dhcp': 'DHCP Server',
+  'network.info.gateway': 'Default Gateway',
+  'network.info.speed': 'Link Speed',
 
   // Aria2
   'aria2.title': '⬇️ Aria2 Download Manager',

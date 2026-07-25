@@ -165,6 +165,14 @@ export default {
   'network.curl.tooltip.timeout': '请求超时时间（秒），超过此时间未收到响应将自动断开，默认 30 秒',
   'network.stopped': '⏹️ 已停止',
   'network.clearLog': '清空日志',
+  'network.info.title': '网络信息',
+  'network.info.interface': '网络接口',
+  'network.info.ipv4': 'IPv4 地址',
+  'network.info.ipv6': 'IPv6 地址',
+  'network.info.dns': 'DNS 服务器',
+  'network.info.dhcp': 'DHCP 服务器',
+  'network.info.gateway': '默认网关',
+  'network.info.speed': '协商速率',
 
   // Aria2
   'aria2.title': '⬇️ Aria2 下载管理器',
