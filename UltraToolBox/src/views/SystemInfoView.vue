@@ -50,6 +50,7 @@ interface PowerInfo {
   battery_percent: number | null
   battery_state: string | null
   battery_time_remaining: string | null
+  battery_is_charging: boolean
   power_source: string | null
   thermal_level: string | null
   cpu_power_mw: number | null
@@ -86,7 +87,10 @@ function translateBatteryState(state: string): string {
   return map[state] || state
 }
 
-function formatTimeRemaining(time: string): string {
+function formatTimeRemaining(time: string, isCharging: boolean): string {
+  if (isCharging) {
+    return `${time} ${t('systemInfo.power.timeToFull')}`
+  }
   return `${time} ${t('systemInfo.power.remaining')}`
 }
 
@@ -376,8 +380,8 @@ onUnmounted(() => {
               <span class="power-value">{{ translateBatteryState(powerInfo.battery_state) }}</span>
             </div>
             <div class="power-item" v-if="powerInfo.battery_time_remaining">
-              <span class="power-label">{{ $t('systemInfo.power.timeRemaining') }}</span>
-              <span class="power-value">{{ formatTimeRemaining(powerInfo.battery_time_remaining) }}</span>
+              <span class="power-label">{{ powerInfo.battery_is_charging ? $t('systemInfo.power.chargingTime') : $t('systemInfo.power.timeRemaining') }}</span>
+              <span class="power-value">{{ formatTimeRemaining(powerInfo.battery_time_remaining, powerInfo.battery_is_charging) }}</span>
             </div>
             <div class="power-item" v-if="powerInfo.thermal_level">
               <span class="power-label"><Thermometer :size="14" /> {{ $t('systemInfo.power.thermal') }}</span>

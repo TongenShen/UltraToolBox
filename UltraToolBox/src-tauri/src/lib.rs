@@ -44,6 +44,7 @@ pub struct PowerInfo {
     pub battery_percent: Option<f32>,
     pub battery_state: Option<String>,
     pub battery_time_remaining: Option<String>,
+    pub battery_is_charging: bool,
     pub power_source: Option<String>,
     pub thermal_level: Option<String>,
     pub cpu_power_mw: Option<u32>,
@@ -103,11 +104,11 @@ fn fill_battery_info(batt: &str, info: &mut PowerInfo) {
             if let Some(semicolon) = trimmed.find(';') {
                 let before = &trimmed[..semicolon];
                 let after = &trimmed[semicolon + 1..];
-                // 提取百分比
+                // 提取百分比 — 找到 % 前的最后一个数字（用 split_whitespace 处理制表符）
                 if let Some(pct_end) = before.find('%') {
                     let pct_str = before[..pct_end].trim();
-                    if let Some(last_space) = pct_str.rfind(' ') {
-                        if let Ok(pct) = pct_str[last_space + 1..].parse::<f32>() {
+                    if let Some(num_str) = pct_str.split_whitespace().last() {
+                        if let Ok(pct) = num_str.parse::<f32>() {
                             info.battery_percent = Some(pct);
                         }
                     }
@@ -115,15 +116,18 @@ fn fill_battery_info(batt: &str, info: &mut PowerInfo) {
                 // 提取状态
                 let state = after.trim().split(';').next().unwrap_or("").trim().to_string();
                 if !state.is_empty() {
-                    info.battery_state = Some(state);
+                    info.battery_state = Some(state.clone());
+                    info.battery_is_charging = state == "charging" || state == "finishing charge";
                 }
-                // 提取剩余时间
+                // 提取剩余/充满时间
                 for part in after.split(';') {
                     let part = part.trim();
-                    if part.contains(":") && part.contains("remaining") {
-                        let time_part = part.split_whitespace().next().unwrap_or("").to_string();
-                        if !time_part.is_empty() && time_part != "0:00" {
-                            info.battery_time_remaining = Some(time_part);
+                    // 时间部分格式: "1:39 remaining present: true" 或 "1:39 until full present: true"
+                    if part.contains(':') && (part.contains("remaining") || part.contains("until full")) {
+                        if let Some(time_str) = part.split_whitespace().next() {
+                            if !time_str.is_empty() && time_str != "0:00" {
+                                info.battery_time_remaining = Some(time_str.to_string());
+                            }
                         }
                     }
                 }

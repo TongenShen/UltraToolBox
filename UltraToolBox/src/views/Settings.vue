@@ -176,6 +176,23 @@ onMounted(async () => {
         </div>
 
         <div class="panel-section">
+          <h3>{{ $t('settings.chargeLimit.title') }}</h3>
+          <p class="section-desc">{{ $t('settings.chargeLimit.desc') }}</p>
+          <div class="charge-limit-row">
+            <input
+              type="range"
+              class="charge-limit-slider"
+              min="50"
+              max="100"
+              step="5"
+              :value="appStore.chargeLimit"
+              @input="appStore.setChargeLimit(Number(($event.target as HTMLInputElement).value))"
+            />
+            <span class="charge-limit-value">{{ appStore.chargeLimit }}%</span>
+          </div>
+        </div>
+
+        <div class="panel-section">
           <h3>{{ $t('settings.appInfo.title') }}</h3>
           <div class="info-list">
             <div class="info-row">
@@ -630,5 +647,59 @@ onMounted(async () => {
 .btn.saved {
   border-color: #22c55e;
   color: #22c55e;
+}
+
+.charge-limit-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.charge-limit-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+}
+
+.charge-limit-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.charge-limit-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.charge-limit-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.charge-limit-value {
+  min-width: 44px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
 }
 </style>

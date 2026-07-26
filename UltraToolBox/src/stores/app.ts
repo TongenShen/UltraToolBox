@@ -21,6 +21,9 @@ export const useAppStore = defineStore('app', () => {
   const savedRootPassword = typeof localStorage !== 'undefined' ? localStorage.getItem('ultratoolbox-root-password') : null
   const rootPassword = ref(savedRootPassword || '')
 
+  const savedChargeLimit = typeof localStorage !== 'undefined' ? localStorage.getItem('ultratoolbox-charge-limit') : null
+  const chargeLimit = ref(savedChargeLimit ? Number(savedChargeLimit) : 100)
+
   const isDark = computed(() => theme.value === 'dark')
 
   function toggleTheme() {
@@ -53,18 +56,25 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('ultratoolbox-root-password', password)
   }
 
+  function setChargeLimit(limit: number) {
+    chargeLimit.value = limit
+    localStorage.setItem('ultratoolbox-charge-limit', String(limit))
+  }
+
   return {
     theme,
     locale,
     sidebarCollapsed,
     showTooltips,
     rootPassword,
+    chargeLimit,
     isDark,
     toggleTheme,
     setTheme,
     setLocale,
     toggleSidebar,
     toggleTooltips,
-    setRootPassword
+    setRootPassword,
+    setChargeLimit
   }
 })
